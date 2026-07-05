@@ -11,6 +11,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/driver/login', [DriverApiController::class, 'login']);
+Route::post('/driver/set-online', [DriverApiController::class, 'setOnline']);
 Route::post('/driver/logout', [DriverApiController::class, 'logout']);
 Route::get('/driver/orders', [DriverApiController::class, 'getOrders']);
 Route::get('/driver/order/active', [DriverApiController::class, 'getActiveOrder']);

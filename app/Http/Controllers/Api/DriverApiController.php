@@ -54,6 +54,43 @@ class DriverApiController extends Controller
     }
 
     /**
+     * Set driver status to online (dashboard switch).
+     */
+    public function setOnline(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email',
+            'onesignal_player_id' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $driver = Driver::where('email', $request->email)->first();
+        if ($driver) {
+            $driver->update([
+                'status_online' => true,
+                'onesignal_player_id' => $request->onesignal_player_id,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Driver status set to online.',
+                'data' => $driver
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Driver not found.',
+        ], 404);
+    }
+
+    /**
      * Update order status and add driver_fare to balance on completion.
      */
     public function updateOrderStatus(Request $request)
