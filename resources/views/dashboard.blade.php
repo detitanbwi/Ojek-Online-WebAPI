@@ -758,41 +758,7 @@
                 `;
             }
         });
-
-        // Auto refresh table & drivers list every 3 seconds
-        async function refreshDashboardData() {
-            try {
-                const response = await fetch(window.location.href);
-                if (response.ok) {
-                    const htmlText = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(htmlText, 'text/html');
-                    
-                    const newTableBody = doc.getElementById('ordersTableBody');
-                    const currentTableBody = document.getElementById('ordersTableBody');
-                    if (newTableBody && currentTableBody) {
-                        currentTableBody.innerHTML = newTableBody.innerHTML;
-                    }
-                    
-                    const newDriverList = doc.getElementById('driverListContainer');
-                    const currentDriverList = document.getElementById('driverListContainer');
-                    if (newDriverList && currentDriverList) {
-                        currentDriverList.innerHTML = newDriverList.innerHTML;
-                    }
-
-                    // Also refresh the driver selection dropdown menu
-                    const newDriverSelect = doc.getElementById('driver_id');
-                    const currentDriverSelect = document.getElementById('driver_id');
-                    if (newDriverSelect && currentDriverSelect) {
-                        const currentValue = currentDriverSelect.value;
-                        currentDriverSelect.innerHTML = newDriverSelect.innerHTML;
-                        currentDriverSelect.value = currentValue; // preserve current selection
-                    }
-                }
-            } catch (e) {
-                console.error("Auto refresh failed", e);
-            }
-        }
+    </script>
 
     <!-- Custom Detach Modal -->
     <div id="detachModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
