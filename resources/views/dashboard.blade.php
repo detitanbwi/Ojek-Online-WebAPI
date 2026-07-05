@@ -634,7 +634,7 @@
             originMarker = null;
             destinationMarker = null;
             
-            directionsRenderer.setDirections({ routes: [] });
+            directionsRenderer.setDirections(null);
             
             document.getElementById('origin').value = '';
             document.getElementById('destination').value = '';
