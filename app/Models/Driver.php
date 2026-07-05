@@ -13,6 +13,8 @@ class Driver extends Model
     protected $fillable = [
         'name',
         'phone',
+        'email',
+        'password',
         'onesignal_player_id',
         'status_online',
         'balance',

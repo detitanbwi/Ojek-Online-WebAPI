@@ -8,18 +8,19 @@ use App\Models\Order;
 use App\Models\OrderLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class DriverApiController extends Controller
 {
     /**
-     * Store OneSignal Player ID and set driver status to online.
+     * Authenticate driver with Email & Password and set status to online.
      */
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone' => 'required|string',
+            'email' => 'required|string|email',
+            'password' => 'required|string',
             'onesignal_player_id' => 'required|string',
-            'name' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -30,11 +31,14 @@ class DriverApiController extends Controller
             ], 422);
         }
 
-        // Find or create driver by phone number
-        $driver = Driver::firstOrCreate(
-            ['phone' => $request->phone],
-            ['name' => $request->name ?? 'Driver ' . substr($request->phone, -4)]
-        );
+        $driver = Driver::where('email', $request->email)->first();
+        
+        if (!$driver || !Hash::check($request->password, $driver->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email atau Password salah.'
+            ], 401);
+        }
 
         // Update OneSignal player ID and set status online
         $driver->update([
@@ -50,7 +54,7 @@ class DriverApiController extends Controller
     }
 
     /**
-     * Update order status.
+     * Update order status and add driver_fare to balance on completion.
      */
     public function updateOrderStatus(Request $request)
     {
@@ -82,11 +86,11 @@ class DriverApiController extends Controller
             'status' => $request->status,
         ]);
 
-        // Increment driver balance on completion
+        // Increment driver balance on completion (using driver_fare instead of full customer price)
         if ($oldStatus !== 'completed' && $request->status == 'completed') {
             $driver = $order->driver;
             if ($driver) {
-                $driver->increment('balance', $order->price);
+                $driver->increment('balance', $order->driver_fare);
             }
         }
 
@@ -98,12 +102,12 @@ class DriverApiController extends Controller
     }
 
     /**
-     * Set driver status to offline.
+     * Set driver status to offline (logout).
      */
     public function logout(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone' => 'required|string',
+            'email' => 'required|string|email',
         ]);
 
         if ($validator->fails()) {
@@ -114,10 +118,11 @@ class DriverApiController extends Controller
             ], 422);
         }
 
-        $driver = Driver::where('phone', $request->phone)->first();
+        $driver = Driver::where('email', $request->email)->first();
         if ($driver) {
             $driver->update([
                 'status_online' => false,
+                'onesignal_player_id' => null, // Clear OneSignal ID on logout so they don't get orders
             ]);
             return response()->json([
                 'success' => true,
@@ -137,7 +142,7 @@ class DriverApiController extends Controller
     public function getOrders(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone' => 'required|string',
+            'email' => 'required|string|email',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -147,7 +152,7 @@ class DriverApiController extends Controller
             ], 422);
         }
 
-        $driver = Driver::where('phone', $request->phone)->first();
+        $driver = Driver::where('email', $request->email)->first();
         if (!$driver) {
             return response()->json(['success' => false, 'message' => 'Driver not found.'], 404);
         }
@@ -162,7 +167,7 @@ class DriverApiController extends Controller
     public function getActiveOrder(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone' => 'required|string',
+            'email' => 'required|string|email',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -172,7 +177,7 @@ class DriverApiController extends Controller
             ], 422);
         }
 
-        $driver = Driver::where('phone', $request->phone)->first();
+        $driver = Driver::where('email', $request->email)->first();
         if (!$driver) {
             return response()->json(['success' => false, 'message' => 'Driver not found.'], 404);
         }
@@ -203,7 +208,6 @@ class DriverApiController extends Controller
 
         $order = Order::find($request->order_id);
         
-        // Generate dynamic unique order ID suffix for Midtrans to avoid order ID collision
         $midtransOrderId = $order->id . '-' . time();
         $chargeResult = $midtransService->chargeQris($midtransOrderId, (int)$order->price);
 
@@ -274,10 +278,10 @@ class DriverApiController extends Controller
                         'status' => 'completed',
                     ]);
 
-                    // Increment driver balance
+                    // Increment driver balance with driver_fare
                     $driver = $order->driver;
                     if ($driver) {
-                        $driver->increment('balance', $order->price);
+                        $driver->increment('balance', $order->driver_fare);
                     }
                 }
 
@@ -327,10 +331,10 @@ class DriverApiController extends Controller
                 'status' => 'completed',
             ]);
 
-            // Increment driver balance
+            // Increment driver balance with driver_fare
             $driver = $order->driver;
             if ($driver) {
-                $driver->increment('balance', $order->price);
+                $driver->increment('balance', $order->driver_fare);
             }
         }
 
@@ -342,12 +346,12 @@ class DriverApiController extends Controller
     }
 
     /**
-     * Get driver profile details (such as current wallet balance).
+     * Get driver profile details.
      */
     public function getProfile(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone' => 'required|string',
+            'email' => 'required|string|email',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -357,7 +361,7 @@ class DriverApiController extends Controller
             ], 422);
         }
 
-        $driver = Driver::where('phone', $request->phone)->first();
+        $driver = Driver::where('email', $request->email)->first();
         if (!$driver) {
             return response()->json(['success' => false, 'message' => 'Driver not found.'], 404);
         }

@@ -11,12 +11,20 @@
     </x-slot>
 
     <div class="py-8 bg-gray-50/50 min-h-screen">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
+        <div class="max-w-[95%] mx-auto sm:px-6 lg:px-8 space-y-8">
             
+            <!-- Session Messages -->
+            @if(session('success'))
+                <div class="p-4 mb-4 text-sm text-emerald-800 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="font-bold">{{ session('success') }}</span>
+                </div>
+            @endif
+
             <!-- Grid Layout -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
-                <!-- Left/Middle: Create Order & Order History (Col-span 2) -->
+                <!-- Left/Middle: Create Order & Map (Col-span 2) -->
                 <div class="lg:col-span-2 space-y-8">
                     
                     <!-- Create Order Card -->
@@ -196,73 +204,18 @@
                         </form>
                     </div>
 
-                    <!-- Recent Orders List -->
-                    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                        <div class="p-6 bg-white border-b border-gray-50 flex items-center justify-between">
-                            <div>
-                                <h3 class="text-lg font-bold text-gray-800">Daftar Order Terkini</h3>
-                                <p class="text-xs text-gray-500">Menampilkan 15 order terakhir yang dibuat.</p>
-                            </div>
-                            <button onclick="window.location.reload()" class="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17"/></svg>
-                            </button>
-                        </div>
-                        
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-gray-50/50">
-                                        <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</th>
-                                        <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Driver</th>
-                                        <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Rute (Jemput → Tujuan)</th>
-                                        <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tarif</th>
-                                        <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Dibuat</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="ordersTableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
-                                    @forelse($orders as $order)
-                                        <tr class="hover:bg-gray-50/50 transition-colors">
-                                            <td class="p-4 font-mono font-semibold text-indigo-600">#{{ $order->id }}</td>
-                                            <td class="p-4 font-medium">{{ $order->driver->name ?? 'N/A' }}</td>
-                                            <td class="p-4">
-                                                <div class="font-medium text-gray-800">{{ $order->origin }}</div>
-                                                <div class="text-xs text-gray-400 mt-0.5">→ {{ $order->destination }}</div>
-                                            </td>
-                                            <td class="p-4 font-semibold text-gray-900">Rp {{ number_format($order->price, 0, ',', '.') }}</td>
-                                            <td class="p-4">
-                                                @if($order->status === 'pending')
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20">Pending</span>
-                                                @elseif($order->status === 'accepted')
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-600/20">Accepted</span>
-                                                @elseif($order->status === 'completed')
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">Completed</span>
-                                                @else
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/20">{{ ucfirst($order->status) }}</span>
-                                                @endif
-                                            </td>
-                                            <td class="p-4 text-xs text-gray-400">{{ $order->created_at->diffForHumans() }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="p-8 text-center text-gray-400">Belum ada orderan yang dibuat.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Right: Driver Status & Monitor (Col-span 1) -->
+                <!-- Right: Driver Status & Commission Settings (Col-span 1) -->
                 <div class="space-y-8">
+                    <!-- Status Driver Online -->
                     <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
                         <div class="p-6 bg-white border-b border-gray-50">
-                            <h3 class="text-lg font-bold text-gray-800">Status Driver</h3>
+                            <h3 class="text-lg font-bold text-gray-800">Driver Online</h3>
                             <p class="text-xs text-gray-500">Monitor driver terdaftar dan status online.</p>
                         </div>
                         
-                        <div id="driverListContainer" class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+                        <div id="driverListContainer" class="divide-y divide-gray-100 max-h-[300px] overflow-y-auto">
                             @forelse($drivers->where('status_online', true) as $driver)
                                 <div class="p-5 flex items-center justify-between hover:bg-gray-50/50 transition-all duration-150">
                                     <div class="space-y-1">
@@ -277,19 +230,9 @@
                                             <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 00.996.808H10.5a1 1 0 01.96.697l1.037 3.111a1 1 0 01-.004.814l-1.04 3.119a1 1 0 01-.962.678h-2.17a1 1 0 00-.996.808l-.548 2.2a1 1 0 01-.94.725H5a2 2 0 01-2-2V5z"/></svg>
                                             {{ $driver->phone }}
                                         </div>
-                                        @if($driver->onesignal_player_id)
-                                            <div class="mt-2 text-[10px] bg-gray-100 text-gray-600 px-2 py-1 rounded font-mono truncate max-w-[200px]" title="{{ $driver->onesignal_player_id }}">
-                                                ID: {{ substr($driver->onesignal_player_id, 0, 15) }}...
-                                            </div>
-                                        @else
-                                            <div class="mt-2 text-[10px] bg-red-50 text-red-500 px-2 py-1 rounded font-semibold italic">
-                                                OneSignal ID belum terdaftar
-                                            </div>
-                                        @endif
                                     </div>
                                     
                                     <div class="flex items-center gap-3">
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">Online</span>
                                         <button onclick="detachDriver({{ $driver->id }})" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold rounded-xl text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
                                             Detach
@@ -301,10 +244,310 @@
                             @endforelse
                         </div>
                     </div>
+
+                    <!-- Commission Settings Panel -->
+                    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                        <div class="p-6 bg-white border-b border-gray-50">
+                            <h3 class="text-lg font-bold text-gray-800">Pengaturan Komisi</h3>
+                            <p class="text-xs text-gray-500">Atur besaran potongan komisi platform per orderan.</p>
+                        </div>
+                        <form action="{{ route('admin.settings.save') }}" method="POST" class="p-6 space-y-4">
+                            @csrf
+                            <div>
+                                <label for="commission_type" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Tipe Komisi</label>
+                                <select name="commission_type" id="commission_type" onchange="toggleRoundingOption()"
+                                    class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-3 px-4 text-sm text-gray-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500 transition-all duration-200">
+                                    <option value="percentage" {{ ($settings['commission_type'] ?? '') === 'percentage' ? 'selected' : '' }}>Persentase (%)</option>
+                                    <option value="fixed" {{ ($settings['commission_type'] ?? '') === 'fixed' ? 'selected' : '' }}>Nominal Tetap (Rupiah)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="commission_value" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Nilai Potongan</label>
+                                <input type="number" name="commission_value" id="commission_value" value="{{ $settings['commission_value'] ?? '10' }}" min="0" required
+                                    class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-3 px-4 text-sm text-gray-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500 transition-all duration-200">
+                            </div>
+                            <div id="roundOptionContainer" class="{{ ($settings['commission_type'] ?? 'percentage') === 'fixed' ? 'hidden' : '' }}">
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" name="round_hundreds_down" value="true" class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" {{ ($settings['round_hundreds_down'] ?? 'true') === 'true' ? 'checked' : '' }}>
+                                    <span class="text-xs font-semibold text-gray-600">Bulatkan komisi ke ratusan kebawah</span>
+                                </label>
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-bold transition-all shadow-md shadow-indigo-600/10">Simpan Pengaturan</button>
+                        </form>
+                    </div>
                 </div>
+
+            </div>
+
+            <!-- Row 2: Recent Orders List (Full Width) -->
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="p-6 bg-white border-b border-gray-50 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Daftar Order Terkini</h3>
+                        <p class="text-xs text-gray-500">Menampilkan daftar order yang dibuat dalam sistem.</p>
+                    </div>
+                    <button onclick="window.location.reload()" class="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17"/></svg>
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50/50">
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Driver</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Rute (Jemput → Tujuan)</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tarif Cust</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Net Driver</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Pot Admin</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Waktu</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody" class="divide-y divide-gray-100 text-sm text-gray-700">
+                            @forelse($orders as $order)
+                                <tr class="hover:bg-gray-50/50 transition-colors">
+                                    <td class="p-4 font-mono font-semibold text-indigo-600">#{{ $order->id }}</td>
+                                    <td class="p-4 font-medium">{{ $order->driver->name ?? 'N/A' }}</td>
+                                    <td class="p-4">
+                                        <div class="font-medium text-gray-800 truncate max-w-xs" title="{{ $order->origin }}">{{ $order->origin }}</div>
+                                        <div class="text-xs text-gray-400 mt-0.5 truncate max-w-xs" title="{{ $order->destination }}">→ {{ $order->destination }}</div>
+                                    </td>
+                                    <td class="p-4 font-semibold text-gray-900">Rp {{ number_format($order->price, 0, ',', '.') }}</td>
+                                    <td class="p-4 font-semibold text-emerald-600">Rp {{ number_format($order->driver_fare, 0, ',', '.') }}</td>
+                                    <td class="p-4 font-semibold text-rose-600">Rp {{ number_format($order->admin_fee, 0, ',', '.') }}</td>
+                                    <td class="p-4">
+                                        @if($order->status === 'pending')
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20">Pending</span>
+                                        @elseif($order->status === 'accepted')
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-600/20">Accepted</span>
+                                        @elseif($order->status === 'completed')
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">Completed</span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/20">{{ ucfirst($order->status) }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="p-4 text-xs text-gray-400">{{ $order->created_at->diffForHumans() }}</td>
+                                    <td class="p-4 text-center">
+                                        <button onclick="viewOrderDetail({{ $order->id }})" class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-xl text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors">Detail</button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="p-8 text-center text-gray-400">Belum ada orderan yang dibuat.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Row 3: Driver Account Manager (Full Width CRUD) -->
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                <div class="p-6 bg-white border-b border-gray-50 flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Driver Account Manager</h3>
+                        <p class="text-xs text-gray-500">Kelola pendaftaran akun driver, password, email, dan pantau saldo dompet mereka.</p>
+                    </div>
+                    <button onclick="openAddDriverModal()" class="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-2xl text-white bg-indigo-600 hover:bg-indigo-700 shadow-md transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Tambah Driver Baru
+                    </button>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50/50">
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">ID Driver</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">No. HP</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Saldo Wallet</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status Online</th>
+                                <th class="p-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
+                            @forelse($drivers as $driver)
+                                <tr class="hover:bg-gray-50/50 transition-colors">
+                                    <td class="p-4 font-mono font-bold text-gray-500">DRV-{{ str_pad($driver->id, 4, '0', STR_PAD_LEFT) }}</td>
+                                    <td class="p-4 font-bold text-gray-800">{{ $driver->name }}</td>
+                                    <td class="p-4">{{ $driver->email ?? 'Belum diset' }}</td>
+                                    <td class="p-4">{{ $driver->phone }}</td>
+                                    <td class="p-4 font-semibold text-emerald-600">Rp {{ number_format($driver->balance, 0, ',', '.') }}</td>
+                                    <td class="p-4">
+                                        @if($driver->status_online)
+                                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                                                <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                                Online
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-gray-50 text-gray-500 ring-1 ring-inset ring-gray-600/20">Offline</span>
+                                        @endif
+                                    </td>
+                                    <td class="p-4 text-center space-x-2">
+                                        <button onclick="openEditDriverModal({{ json_encode($driver) }})" class="inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-xl text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-colors">Edit</button>
+                                        <form action="{{ route('admin.drivers.destroy', $driver->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus driver ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-xl text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors">Hapus</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="p-8 text-center text-gray-400">Belum ada driver yang terdaftar di sistem.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modals -->
+
+    <!-- Order Detail Modal -->
+    <div id="orderDetailModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-100 transform transition-all duration-300">
+            <div class="p-6 bg-gradient-to-r from-indigo-900 to-slate-900 text-white flex justify-between items-center">
+                <h3 class="text-lg font-bold">Detail Orderan <span id="detail_order_id"></span></h3>
+                <button onclick="closeOrderDetailModal()" class="text-white/80 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-6">
+                <div class="space-y-3">
+                    <div>
+                        <span class="block text-[10px] uppercase font-bold text-gray-400">Titik Jemput (Origin)</span>
+                        <span id="detail_origin" class="text-sm font-semibold text-gray-800"></span>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] uppercase font-bold text-gray-400">Titik Tujuan (Destination)</span>
+                        <span id="detail_destination" class="text-sm font-semibold text-gray-800"></span>
+                    </div>
+                </div>
+                <div class="border-t border-gray-100 pt-4 grid grid-cols-2 gap-4">
+                    <div>
+                        <span class="block text-[10px] uppercase font-bold text-gray-400">Driver</span>
+                        <span id="detail_driver_name" class="text-sm font-semibold text-gray-800"></span>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] uppercase font-bold text-gray-400">Status</span>
+                        <div id="detail_status_container" class="mt-1"></div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-100 pt-4 grid grid-cols-2 gap-4">
+                    <div>
+                        <span class="block text-[10px] uppercase font-bold text-gray-400">Nama Penumpang</span>
+                        <span id="detail_passenger_name" class="text-sm font-semibold text-gray-800"></span>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] uppercase font-bold text-gray-400">Metode Bayar</span>
+                        <span id="detail_payment_type" class="text-sm font-semibold text-gray-800"></span>
+                    </div>
+                </div>
+                <div class="bg-gray-50 rounded-2xl p-4 space-y-2 border border-gray-100">
+                    <span class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Rincian Komisi</span>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-gray-500">Tarif Penumpang (Customer Pays):</span>
+                        <span id="detail_price" class="font-bold text-gray-800"></span>
+                    </div>
+                    <div class="flex justify-between text-xs text-rose-600">
+                        <span>Potongan Admin (Platform Cut):</span>
+                        <span id="detail_admin_fee" class="font-semibold"></span>
+                    </div>
+                    <div class="flex justify-between text-sm font-bold text-emerald-600 border-t border-gray-200/80 pt-2">
+                        <span>Pendapatan Bersih Driver:</span>
+                        <span id="detail_driver_fare"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 bg-gray-50 border-t border-gray-100 flex justify-end">
+                <button onclick="closeOrderDetailModal()" class="px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-indigo-700 transition-colors">Tutup</button>
             </div>
         </div>
     </div>
+
+    <!-- Add Driver Modal -->
+    <div id="addDriverModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-100 transform transition-all duration-300">
+            <div class="p-6 bg-gradient-to-r from-indigo-900 to-slate-900 text-white flex justify-between items-center">
+                <h3 class="text-lg font-bold">Daftarkan Driver Baru</h3>
+                <button onclick="closeAddDriverModal()" class="text-white/80 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form action="{{ route('admin.drivers.store') }}" method="POST" class="p-6 space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Nama Lengkap</label>
+                    <input type="text" name="name" required class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-2.5 px-4 text-sm text-gray-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Alamat Email</label>
+                    <input type="email" name="email" required class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-2.5 px-4 text-sm text-gray-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Nomor HP</label>
+                    <input type="text" name="phone" required class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-2.5 px-4 text-sm text-gray-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Password Akun</label>
+                    <input type="password" name="password" required minlength="6" class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-2.5 px-4 text-sm text-gray-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500">
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeAddDriverModal()" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-xs font-bold transition-all">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-600/20">Daftarkan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Driver Modal -->
+    <div id="editDriverModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-100 transform transition-all duration-300">
+            <div class="p-6 bg-gradient-to-r from-indigo-900 to-slate-900 text-white flex justify-between items-center">
+                <h3 class="text-lg font-bold">Edit Akun Driver</h3>
+                <button onclick="closeEditDriverModal()" class="text-white/80 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="editDriverForm" method="POST" class="p-6 space-y-4">
+                @csrf
+                @method('PUT')
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Nama Lengkap</label>
+                    <input type="text" id="edit_driver_name" name="name" required class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-2.5 px-4 text-sm text-gray-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Alamat Email</label>
+                    <input type="email" id="edit_driver_email" name="email" required class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-2.5 px-4 text-sm text-gray-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Nomor HP</label>
+                    <input type="text" id="edit_driver_phone" name="phone" required class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-2.5 px-4 text-sm text-gray-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Saldo Dompet (Rupiah)</label>
+                    <input type="number" id="edit_driver_balance" name="balance" required min="0" class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-2.5 px-4 text-sm text-gray-800 font-bold text-emerald-600 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Password Baru (Biarkan kosong jika tetap)</label>
+                    <input type="password" name="password" minlength="6" class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-2.5 px-4 text-sm text-gray-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500" placeholder="Kosongkan jika tidak diganti">
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" onclick="closeEditDriverModal()" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-xs font-bold transition-all">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-600/20">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>    </div>
 
     <!-- Script to handle AJAX Order Creation & Google Maps Integration -->
     <script>
@@ -864,6 +1107,111 @@
                 console.error("Error detaching driver:", e);
             }
         });
+
+        // Commission Toggling
+        function toggleRoundingOption() {
+            const type = document.getElementById('commission_type').value;
+            const container = document.getElementById('roundOptionContainer');
+            if (type === 'percentage') {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        // Driver Modals
+        function openAddDriverModal() {
+            document.getElementById('addDriverModal').classList.remove('hidden');
+        }
+        function closeAddDriverModal() {
+            document.getElementById('addDriverModal').classList.add('hidden');
+        }
+
+        function openEditDriverModal(driver) {
+            document.getElementById('editDriverForm').action = `/admin/drivers/${driver.id}`;
+            document.getElementById('edit_driver_name').value = driver.name;
+            document.getElementById('edit_driver_email').value = driver.email || '';
+            document.getElementById('edit_driver_phone').value = driver.phone;
+            document.getElementById('edit_driver_balance').value = driver.balance;
+            document.getElementById('editDriverModal').classList.remove('hidden');
+        }
+        function closeEditDriverModal() {
+            document.getElementById('editDriverModal').classList.add('hidden');
+        }
+
+        // Order Detail Modal
+        async function viewOrderDetail(orderId) {
+            try {
+                const res = await fetch(`/admin/orders/${orderId}`);
+                const result = await res.json();
+                if (result.success) {
+                    const order = result.data;
+                    document.getElementById('detail_order_id').innerText = `#${order.id}`;
+                    document.getElementById('detail_origin').innerText = order.origin;
+                    document.getElementById('detail_destination').innerText = order.destination;
+                    document.getElementById('detail_driver_name').innerText = order.driver ? order.driver.name : 'Belum diambil';
+                    document.getElementById('detail_passenger_name').innerText = order.passenger_name || 'N/A';
+                    document.getElementById('detail_payment_type').innerText = order.payment_type === 'qris' ? '📱 QRIS (Midtrans)' : '💵 Tunai (Cash)';
+                    
+                    document.getElementById('detail_price').innerText = `Rp ${parseFloat(order.price).toLocaleString('id-ID')}`;
+                    document.getElementById('detail_admin_fee').innerText = `- Rp ${parseFloat(order.admin_fee || 0).toLocaleString('id-ID')}`;
+                    document.getElementById('detail_driver_fare').innerText = `Rp ${parseFloat(order.driver_fare || 0).toLocaleString('id-ID')}`;
+
+                    let badgeHtml = '';
+                    if (order.status === 'pending') {
+                        badgeHtml = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20">Pending</span>';
+                    } else if (order.status === 'accepted') {
+                        badgeHtml = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 ring-1 ring-inset ring-indigo-600/20">Accepted</span>';
+                    } else if (order.status === 'completed') {
+                        badgeHtml = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">Completed</span>';
+                    } else {
+                        badgeHtml = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/20">${order.status}</span>`;
+                    }
+                    document.getElementById('detail_status_container').innerHTML = badgeHtml;
+
+                    document.getElementById('orderDetailModal').classList.remove('hidden');
+                }
+            } catch (e) {
+                console.error("Gagal memuat detail order:", e);
+            }
+        }
+        function closeOrderDetailModal() {
+            document.getElementById('orderDetailModal').classList.add('hidden');
+        }
+
+        // Live Fee Preview
+        function updateBreakdownPreview() {
+            const priceVal = parseFloat(document.getElementById('price').value) || 0;
+            const type = "{{ $settings['commission_type'] ?? 'percentage' }}";
+            const val = parseFloat("{{ $settings['commission_value'] ?? '10' }}") || 0;
+            const roundDown = "{{ $settings['round_hundreds_down'] ?? 'true' }}" === 'true';
+
+            let adminFee = 0;
+            if (type === 'percentage') {
+                adminFee = priceVal * (val / 100);
+                if (roundDown) {
+                    adminFee = Math.floor(adminFee / 100) * 100;
+                }
+            } else {
+                adminFee = val;
+            }
+            const driverFare = Math.max(0, priceVal - adminFee);
+
+            const breakdownEl = document.getElementById('fareBreakdown');
+            if (priceVal > 0) {
+                breakdownEl.classList.remove('hidden');
+                breakdownEl.innerHTML = `
+                    <div class="flex justify-between"><span>Tarif Penumpang:</span><span class="font-bold text-gray-900">Rp ${priceVal.toLocaleString('id-ID')}</span></div>
+                    <div class="flex justify-between text-rose-600"><span>Potongan Admin (${type === 'percentage' ? val + '%' : 'Nominal'}):</span><span>- Rp ${adminFee.toLocaleString('id-ID')}</span></div>
+                    <div class="flex justify-between text-emerald-600 font-bold"><span>Pendapatan Driver:</span><span>Rp ${driverFare.toLocaleString('id-ID')}</span></div>
+                `;
+            } else {
+                breakdownEl.classList.add('hidden');
+            }
+        }
+
+        // Attach listeners
+        document.getElementById('price').addEventListener('input', updateBreakdownPreview);
         
         // Polling interval 3 seconds
         setInterval(refreshDashboardData, 3000);

@@ -16,10 +16,18 @@ class Order extends Model
         'origin',
         'destination',
         'price',
+        'driver_fare',
+        'admin_fee',
         'status',
         'payment_type',
         'midtrans_order_id',
         'passenger_name',
+    ];
+
+    protected $casts = [
+        'price' => 'float',
+        'driver_fare' => 'float',
+        'admin_fee' => 'float',
     ];
 
     /**
