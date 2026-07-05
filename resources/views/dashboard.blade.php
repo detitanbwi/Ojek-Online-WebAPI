@@ -794,9 +794,91 @@
             }
         }
 
-        // Force detach/disconnect a driver
-        async function detachDriver(driverId) {
-            if (!confirm("Apakah Anda yakin ingin melepas (detach) driver ini dari sistem?")) return;
+    <!-- Custom Detach Modal -->
+    <div id="detachModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
+        
+        <!-- Modal Container -->
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-gray-100">
+                <div class="bg-white px-6 pb-6 pt-8 sm:p-8 sm:pb-6">
+                    <div class="sm:flex sm:items-start">
+                        <!-- Icon Warning -->
+                        <div class="mx-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 sm:mx-0 sm:h-12 sm:w-12">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                            <h3 class="text-lg font-bold leading-6 text-gray-900" id="modal-title">Konfirmasi Detach</h3>
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-500">Apakah Anda yakin ingin memutuskan (detach) pengemudi ini? Driver akan otomatis terputus dari sistem admin dan dialihkan ke status offline secara realtime.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3">
+                    <button type="button" id="confirmDetachBtn" class="inline-flex w-full justify-center rounded-xl bg-rose-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-rose-500 sm:w-auto transition-colors">Ya, Detach</button>
+                    <button type="button" onclick="closeDetachModal()" class="inline-flex w-full justify-center rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:w-auto transition-colors">Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto refresh table & drivers list every 3 seconds
+        async function refreshDashboardData() {
+            try {
+                const response = await fetch(window.location.href);
+                if (response.ok) {
+                    const htmlText = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    
+                    const newTableBody = doc.getElementById('ordersTableBody');
+                    const currentTableBody = document.getElementById('ordersTableBody');
+                    if (newTableBody && currentTableBody) {
+                        currentTableBody.innerHTML = newTableBody.innerHTML;
+                    }
+                    
+                    const newDriverList = doc.getElementById('driverListContainer');
+                    const currentDriverList = document.getElementById('driverListContainer');
+                    if (newDriverList && currentDriverList) {
+                        currentDriverList.innerHTML = newDriverList.innerHTML;
+                    }
+
+                    // Also refresh the driver selection dropdown menu
+                    const newDriverSelect = doc.getElementById('driver_id');
+                    const currentDriverSelect = document.getElementById('driver_id');
+                    if (newDriverSelect && currentDriverSelect) {
+                        const currentValue = currentDriverSelect.value;
+                        currentDriverSelect.innerHTML = newDriverSelect.innerHTML;
+                        currentDriverSelect.value = currentValue; // preserve current selection
+                    }
+                }
+            } catch (e) {
+                console.error("Auto refresh failed", e);
+            }
+        }
+
+        let pendingDetachDriverId = null;
+        
+        function detachDriver(driverId) {
+            pendingDetachDriverId = driverId;
+            document.getElementById('detachModal').classList.remove('hidden');
+        }
+
+        function closeDetachModal() {
+            document.getElementById('detachModal').classList.add('hidden');
+            pendingDetachDriverId = null;
+        }
+
+        document.getElementById('confirmDetachBtn').addEventListener('click', async () => {
+            if (!pendingDetachDriverId) return;
+            const driverId = pendingDetachDriverId;
+            closeDetachModal();
+            
             try {
                 const response = await fetch('/api/admin/driver/detach', {
                     method: 'POST',
@@ -815,7 +897,7 @@
             } catch (e) {
                 console.error("Error detaching driver:", e);
             }
-        }
+        });
         
         // Polling interval 3 seconds
         setInterval(refreshDashboardData, 3000);
