@@ -68,6 +68,7 @@ class DriverApiController extends Controller
         }
 
         $order = Order::find($request->order_id);
+        $oldStatus = $order->status;
         $order->update(['status' => $request->status]);
 
         // Log the change
@@ -75,6 +76,14 @@ class DriverApiController extends Controller
             'order_id' => $order->id,
             'status' => $request->status,
         ]);
+
+        // Increment driver balance on completion
+        if ($oldStatus !== 'completed' && $request->status == 'completed') {
+            $driver = $order->driver;
+            if ($driver) {
+                $driver->increment('balance', $order->price);
+            }
+        }
 
         return response()->json([
             'success' => true,
@@ -259,6 +268,12 @@ class DriverApiController extends Controller
                         'order_id' => $order->id,
                         'status' => 'completed',
                     ]);
+
+                    // Increment driver balance
+                    $driver = $order->driver;
+                    if ($driver) {
+                        $driver->increment('balance', $order->price);
+                    }
                 }
 
                 return response()->json([
@@ -306,6 +321,12 @@ class DriverApiController extends Controller
                 'order_id' => $order->id,
                 'status' => 'completed',
             ]);
+
+            // Increment driver balance
+            $driver = $order->driver;
+            if ($driver) {
+                $driver->increment('balance', $order->price);
+            }
         }
 
         return response()->json([
@@ -313,5 +334,29 @@ class DriverApiController extends Controller
             'message' => 'Simulasi pembayaran sukses, orderan selesai!',
             'data' => $order
         ], 200);
+    }
+
+    /**
+     * Get driver profile details (such as current wallet balance).
+     */
+    public function getProfile(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $driver = Driver::where('phone', $request->phone)->first();
+        if (!$driver) {
+            return response()->json(['success' => false, 'message' => 'Driver not found.'], 404);
+        }
+
+        return response()->json(['success' => true, 'data' => $driver], 200);
     }
 }

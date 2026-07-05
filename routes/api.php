@@ -14,6 +14,7 @@ Route::post('/driver/login', [DriverApiController::class, 'login']);
 Route::post('/driver/logout', [DriverApiController::class, 'logout']);
 Route::get('/driver/orders', [DriverApiController::class, 'getOrders']);
 Route::get('/driver/order/active', [DriverApiController::class, 'getActiveOrder']);
+Route::get('/driver/profile', [DriverApiController::class, 'getProfile']);
 Route::post('/driver/order/status', [DriverApiController::class, 'updateOrderStatus']);
 Route::post('/driver/order/charge-qris', [DriverApiController::class, 'chargeQris']);
 Route::post('/driver/order/check-payment', [DriverApiController::class, 'checkPayment']);

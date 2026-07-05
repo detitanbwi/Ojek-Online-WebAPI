@@ -15,10 +15,12 @@ class Driver extends Model
         'phone',
         'onesignal_player_id',
         'status_online',
+        'balance',
     ];
 
     protected $casts = [
         'status_online' => 'boolean',
+        'balance' => 'float',
     ];
 
     /**
