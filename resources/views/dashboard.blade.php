@@ -116,10 +116,9 @@
                                             <select id="driver_id" name="driver_id" required
                                                 class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-3 px-4 text-gray-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500 transition-all duration-200 text-sm">
                                                 <option value="">-- Pilih Driver --</option>
-                                                @foreach($drivers as $driver)
+                                                @foreach($drivers->where('status_online', true) as $driver)
                                                     <option value="{{ $driver->id }}">
-                                                        {{ $driver->name }} ({{ $driver->phone }}) 
-                                                        - {{ $driver->status_online ? '🟢 Online' : '⚪ Offline' }}
+                                                        {{ $driver->name }} ({{ $driver->phone }})
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -247,17 +246,15 @@
                         </div>
                         
                         <div id="driverListContainer" class="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
-                            @forelse($drivers as $driver)
+                            @forelse($drivers->where('status_online', true) as $driver)
                                 <div class="p-5 flex items-center justify-between hover:bg-gray-50/50 transition-all duration-150">
                                     <div class="space-y-1">
                                         <div class="font-bold text-gray-800 flex items-center gap-2">
                                             {{ $driver->name }}
-                                            @if($driver->status_online)
-                                                <span class="flex h-2 w-2 relative">
-                                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                                </span>
-                                            @endif
+                                            <span class="flex h-2 w-2 relative">
+                                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                            </span>
                                         </div>
                                         <div class="text-xs text-gray-500 flex items-center gap-1">
                                             <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 00.996.808H10.5a1 1 0 01.96.697l1.037 3.111a1 1 0 01-.004.814l-1.04 3.119a1 1 0 01-.962.678h-2.17a1 1 0 00-.996.808l-.548 2.2a1 1 0 01-.94.725H5a2 2 0 01-2-2V5z"/></svg>
@@ -274,16 +271,16 @@
                                         @endif
                                     </div>
                                     
-                                    <div>
-                                        @if($driver->status_online)
-                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">Online</span>
-                                        @else
-                                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-500/10">Offline</span>
-                                        @endif
+                                    <div class="flex items-center gap-3">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20">Online</span>
+                                        <button onclick="detachDriver({{ $driver->id }})" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold rounded-xl text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                            Detach
+                                        </button>
                                     </div>
                                 </div>
                             @empty
-                                <div class="p-8 text-center text-gray-400">Belum ada driver terdaftar.</div>
+                                <div class="p-8 text-center text-gray-400">Tidak ada driver online saat ini.</div>
                             @endforelse
                         </div>
                     </div>
@@ -763,9 +760,41 @@
                     if (newDriverList && currentDriverList) {
                         currentDriverList.innerHTML = newDriverList.innerHTML;
                     }
+
+                    // Also refresh the driver selection dropdown menu
+                    const newDriverSelect = doc.getElementById('driver_id');
+                    const currentDriverSelect = document.getElementById('driver_id');
+                    if (newDriverSelect && currentDriverSelect) {
+                        const currentValue = currentDriverSelect.value;
+                        currentDriverSelect.innerHTML = newDriverSelect.innerHTML;
+                        currentDriverSelect.value = currentValue; // preserve current selection
+                    }
                 }
             } catch (e) {
                 console.error("Auto refresh failed", e);
+            }
+        }
+
+        // Force detach/disconnect a driver
+        async function detachDriver(driverId) {
+            if (!confirm("Apakah Anda yakin ingin melepas (detach) driver ini dari sistem?")) return;
+            try {
+                const response = await fetch('/api/admin/driver/detach', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ driver_id: driverId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    refreshDashboardData();
+                } else {
+                    alert(result.message || "Gagal melakukan detach.");
+                }
+            } catch (e) {
+                console.error("Error detaching driver:", e);
             }
         }
         

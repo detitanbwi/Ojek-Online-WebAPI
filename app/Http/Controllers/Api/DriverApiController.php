@@ -82,4 +82,38 @@ class DriverApiController extends Controller
             'data' => $order
         ], 200);
     }
+
+    /**
+     * Set driver status to offline.
+     */
+    public function logout(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'phone' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $driver = Driver::where('phone', $request->phone)->first();
+        if ($driver) {
+            $driver->update([
+                'status_online' => false,
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Driver status set to offline.',
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Driver not found.',
+        ], 404);
+    }
 }

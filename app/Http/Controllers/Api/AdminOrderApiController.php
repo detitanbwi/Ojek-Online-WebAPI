@@ -110,4 +110,51 @@ class AdminOrderApiController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get all registered drivers.
+     */
+    public function getDrivers()
+    {
+        $drivers = Driver::all();
+        return response()->json([
+            'success' => true,
+            'data' => $drivers
+        ], 200);
+    }
+
+    /**
+     * Force disconnect (detach) a driver from dashboard.
+     */
+    public function detachDriver(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'driver_id' => 'required|exists:drivers,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $driver = Driver::find($request->driver_id);
+        if ($driver) {
+            $driver->update([
+                'status_online' => false,
+                'onesignal_player_id' => null, // force clearing so notifications won't go to detached devices
+            ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Driver detached successfully.'
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Driver not found.'
+        ], 404);
+    }
 }
