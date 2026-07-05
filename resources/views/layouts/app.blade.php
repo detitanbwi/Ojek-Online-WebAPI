@@ -27,6 +27,8 @@
         @else
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
+        <!-- Favicon -->
+        <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">

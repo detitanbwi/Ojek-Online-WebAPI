@@ -69,7 +69,12 @@ class DriverApiController extends Controller
 
         $order = Order::find($request->order_id);
         $oldStatus = $order->status;
-        $order->update(['status' => $request->status]);
+        
+        $updateData = ['status' => $request->status];
+        if ($request->has('payment_type')) {
+            $updateData['payment_type'] = $request->payment_type;
+        }
+        $order->update($updateData);
 
         // Log the change
         OrderLog::create([
