@@ -124,6 +124,23 @@
                                             </select>
                                         </div>
                                     </div>
+                                    
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                        <div>
+                                            <label for="passenger_name" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Nama Penumpang (Opsional)</label>
+                                            <input type="text" id="passenger_name" name="passenger_name"
+                                                class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-3 px-4 text-gray-800 placeholder-gray-400 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500 transition-all duration-200 text-sm"
+                                                placeholder="Nama penumpang acak">
+                                        </div>
+                                        <div>
+                                            <label for="payment_type" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Tipe Pembayaran</label>
+                                            <select id="payment_type" name="payment_type" required
+                                                class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-3 px-4 text-gray-800 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500 transition-all duration-200 text-sm font-semibold">
+                                                <option value="cash">💵 Tunai (Cash)</option>
+                                                <option value="qris">📱 QRIS (Midtrans)</option>
+                                            </select>
+                                        </div>
+                                    </div>
 
                                     <!-- Fare Breakdown -->
                                     <div id="fareBreakdown" class="hidden rounded-2xl p-4 text-xs bg-indigo-50/80 text-indigo-900 border border-indigo-100/50 space-y-1">
@@ -672,6 +689,8 @@
                 destination: document.getElementById('destination').value,
                 price: document.getElementById('price').value,
                 driver_id: document.getElementById('driver_id').value,
+                passenger_name: document.getElementById('passenger_name').value,
+                payment_type: document.getElementById('payment_type').value,
                 _token: form.querySelector('input[name="_token"]').value
             };
             

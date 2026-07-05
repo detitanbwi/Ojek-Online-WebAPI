@@ -12,7 +12,12 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/driver/login', [DriverApiController::class, 'login']);
 Route::post('/driver/logout', [DriverApiController::class, 'logout']);
+Route::get('/driver/orders', [DriverApiController::class, 'getOrders']);
+Route::get('/driver/order/active', [DriverApiController::class, 'getActiveOrder']);
 Route::post('/driver/order/status', [DriverApiController::class, 'updateOrderStatus']);
+Route::post('/driver/order/charge-qris', [DriverApiController::class, 'chargeQris']);
+Route::post('/driver/order/check-payment', [DriverApiController::class, 'checkPayment']);
+Route::post('/driver/order/simulate-payment', [DriverApiController::class, 'simulatePayment']);
 Route::post('/admin/create-order', [AdminOrderApiController::class, 'createOrder']);
 Route::get('/admin/drivers', [AdminOrderApiController::class, 'getDrivers']);
 Route::post('/admin/driver/detach', [AdminOrderApiController::class, 'detachDriver']);

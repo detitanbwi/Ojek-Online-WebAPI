@@ -17,6 +17,9 @@ class Order extends Model
         'destination',
         'price',
         'status',
+        'payment_type',
+        'midtrans_order_id',
+        'passenger_name',
     ];
 
     /**

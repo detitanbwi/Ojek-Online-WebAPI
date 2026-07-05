@@ -42,6 +42,10 @@ class AdminOrderApiController extends Controller
 
         try {
             $order = DB::transaction(function () use ($request) {
+                // Generate a random typical Indonesian passenger name for simulation
+                $passengerNames = ['Budi Santoso', 'Siti Aminah', 'Andi Wijaya', 'Dewi Lestari', 'Joko Susilo', 'Rini Wulandari', 'Rian Hidayat', 'Mega Utami'];
+                $randomName = $passengerNames[array_rand($passengerNames)];
+
                 // 1. Create order
                 $order = Order::create([
                     'driver_id' => $request->driver_id,
@@ -49,6 +53,8 @@ class AdminOrderApiController extends Controller
                     'destination' => $request->destination,
                     'price' => $request->price,
                     'status' => 'pending',
+                    'passenger_name' => $request->passenger_name ?? $randomName,
+                    'payment_type' => $request->payment_type ?? 'cash',
                 ]);
 
                 // 2. Create order log
@@ -72,6 +78,8 @@ class AdminOrderApiController extends Controller
                     'origin' => $order->origin,
                     'destination' => $order->destination,
                     'price' => (string)$order->price,
+                    'passenger_name' => $order->passenger_name,
+                    'payment_type' => $order->payment_type,
                 ];
 
                 $title = 'Order Baru!';
