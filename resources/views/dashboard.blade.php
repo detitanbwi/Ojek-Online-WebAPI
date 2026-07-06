@@ -1263,7 +1263,6 @@
                     }, 1500);
                 }
             }
-        }add('hidden');
         }
 
         // Live Fee Preview
