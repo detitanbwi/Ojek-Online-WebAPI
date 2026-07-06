@@ -14,7 +14,7 @@ Route::get('/', function () {
     $orders = Order::with('driver')->latest()->take(15)->get();
     $settings = DB::table('admin_settings')->pluck('value', 'key')->toArray();
     return view('dashboard', compact('drivers', 'orders', 'settings'));
-})->name('dashboard');
+})->middleware('auth')->name('dashboard');
 
 Route::get('/dashboard', function () {
     return redirect()->route('dashboard');

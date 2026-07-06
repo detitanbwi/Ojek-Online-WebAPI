@@ -489,7 +489,11 @@
                     </div>
                 </div>
             </div>
-            <div class="p-6 bg-gray-50 border-t border-gray-100 flex justify-end">
+            <div class="p-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+                <button id="repeatOrderBtn" onclick="triggerRepeatOrder()" class="hidden px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-md transition-colors flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89M9 11l3 3L22 4"/></svg>
+                    Pesan Ulang
+                </button>
                 <button onclick="closeOrderDetailModal()" class="px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-indigo-700 transition-colors">Tutup</button>
             </div>
         </div>
@@ -1169,12 +1173,15 @@
         }
 
         // Order Detail Modal
+        window.currentSelectedOrder = null;
+
         async function viewOrderDetail(orderId) {
             try {
                 const res = await fetch(`/admin/orders/${orderId}`);
                 const result = await res.json();
                 if (result.success) {
                     const order = result.data;
+                    window.currentSelectedOrder = order;
                     document.getElementById('detail_order_id').innerText = `#${order.id}`;
                     document.getElementById('detail_origin').innerText = order.origin;
                     document.getElementById('detail_destination').innerText = order.destination;
@@ -1198,6 +1205,9 @@
                     }
                     document.getElementById('detail_status_container').innerHTML = badgeHtml;
 
+                    // Show Repeat button
+                    document.getElementById('repeatOrderBtn').classList.remove('hidden');
+
                     document.getElementById('orderDetailModal').classList.remove('hidden');
                 }
             } catch (e) {
@@ -1206,6 +1216,54 @@
         }
         function closeOrderDetailModal() {
             document.getElementById('orderDetailModal').classList.add('hidden');
+            document.getElementById('repeatOrderBtn').classList.add('hidden');
+            window.currentSelectedOrder = null;
+        }
+
+        function triggerRepeatOrder() {
+            if (!window.currentSelectedOrder) return;
+            const order = window.currentSelectedOrder;
+
+            // Populate form fields
+            document.getElementById('origin').value = order.origin;
+            document.getElementById('destination').value = order.destination;
+            document.getElementById('price').value = Math.round(order.price);
+            document.getElementById('passenger_name').value = order.passenger_name || '';
+            document.getElementById('payment_type').value = order.payment_type || 'cash';
+
+            // Select driver if online in select dropdown
+            const driverSelect = document.getElementById('driver_id');
+            driverSelect.value = ''; // Reset default
+            for (let option of driverSelect.options) {
+                if (option.value == order.driver_id) {
+                    driverSelect.value = order.driver_id;
+                    break;
+                }
+            }
+
+            // Close modal
+            closeOrderDetailModal();
+
+            // Trigger breakdown calculation
+            if (typeof updateBreakdownPreview === 'function') {
+                updateBreakdownPreview();
+            }
+
+            // Scroll to the order form smoothly
+            const orderFormElement = document.getElementById('createOrderForm');
+            if (orderFormElement) {
+                orderFormElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Add a brief glow effect to highlight the form card
+                const formCard = orderFormElement.closest('.bg-white');
+                if (formCard) {
+                    formCard.classList.add('ring-4', 'ring-indigo-500/30');
+                    setTimeout(() => {
+                        formCard.classList.remove('ring-4', 'ring-indigo-500/30');
+                    }, 1500);
+                }
+            }
+        }add('hidden');
         }
 
         // Live Fee Preview
