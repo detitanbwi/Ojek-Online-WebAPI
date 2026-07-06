@@ -209,10 +209,16 @@
                 <!-- Right: Driver Status & Commission Settings (Col-span 1) -->
                 <div class="space-y-8">
                     <!-- Status Driver Online -->
-                    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                        <div class="p-6 bg-white border-b border-gray-50">
-                            <h3 class="text-lg font-bold text-gray-800">Driver Online</h3>
-                            <p class="text-xs text-gray-500">Monitor driver terdaftar dan status online.</p>
+                    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-2xl">
+                        <div class="p-6 bg-gradient-to-br from-gray-900 to-indigo-950 text-white relative overflow-hidden">
+                            <div class="absolute right-0 top-0 opacity-10 pointer-events-none transform translate-x-4 -translate-y-4 scale-150 text-white">
+                                <svg width="120" height="120" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold tracking-wide">Driver Online</h3>
+                            <p class="text-indigo-200 text-xs mt-1">Monitor driver terdaftar dan status online.</p>
                         </div>
                         
                         <div id="driverListContainer" class="divide-y divide-gray-100 max-h-[300px] overflow-y-auto">
@@ -246,10 +252,15 @@
                     </div>
 
                     <!-- Commission Settings Panel -->
-                    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                        <div class="p-6 bg-white border-b border-gray-50">
-                            <h3 class="text-lg font-bold text-gray-800">Pengaturan Komisi</h3>
-                            <p class="text-xs text-gray-500">Atur besaran potongan komisi platform per orderan.</p>
+                    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-2xl">
+                        <div class="p-6 bg-gradient-to-br from-gray-900 to-indigo-950 text-white relative overflow-hidden">
+                            <div class="absolute right-0 top-0 opacity-10 pointer-events-none transform translate-x-4 -translate-y-4 scale-150 text-white">
+                                <svg width="120" height="120" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-bold tracking-wide">Pengaturan Komisi</h3>
+                            <p class="text-indigo-200 text-xs mt-1">Atur besaran potongan komisi platform per orderan.</p>
                         </div>
                         <form action="{{ route('admin.settings.save') }}" method="POST" class="p-6 space-y-4">
                             @csrf
@@ -280,13 +291,18 @@
             </div>
 
             <!-- Row 2: Recent Orders List (Full Width) -->
-            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                <div class="p-6 bg-white border-b border-gray-50 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-800">Daftar Order Terkini</h3>
-                        <p class="text-xs text-gray-500">Menampilkan daftar order yang dibuat dalam sistem.</p>
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-2xl">
+                <div class="p-6 bg-gradient-to-br from-gray-900 to-indigo-950 text-white relative overflow-hidden flex items-center justify-between">
+                    <div class="absolute right-0 top-0 opacity-10 pointer-events-none transform translate-x-4 -translate-y-4 scale-150 text-white">
+                        <svg width="120" height="120" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.03 0 1.9.693 2.166 1.638m-7.377 12.408.01-.01H5.625a1.875 1.875 0 0 1-1.875-1.875V10.5m10.5-6h-3M5.625 7.5H9.75m-6.75 3h1.5" />
+                        </svg>
                     </div>
-                    <button onclick="window.location.reload()" class="p-2 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 transition-colors">
+                    <div class="relative z-10">
+                        <h3 class="text-lg font-bold tracking-wide">Daftar Order Terkini</h3>
+                        <p class="text-indigo-200 text-xs mt-1">Menampilkan daftar order yang dibuat dalam sistem.</p>
+                    </div>
+                    <button onclick="window.location.reload()" class="relative z-10 p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/10 transition-colors">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17"/></svg>
                     </button>
                 </div>
@@ -345,14 +361,19 @@
             </div>
 
             <!-- Row 3: Driver Account Manager (Full Width CRUD) -->
-            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
-                <div class="p-6 bg-white border-b border-gray-50 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-800">Driver Account Manager</h3>
-                        <p class="text-xs text-gray-500">Kelola pendaftaran akun driver, password, email, dan pantau saldo dompet mereka.</p>
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-2xl">
+                <div class="p-6 bg-gradient-to-br from-gray-900 to-indigo-950 text-white relative overflow-hidden flex items-center justify-between">
+                    <div class="absolute right-0 top-0 opacity-10 pointer-events-none transform translate-x-4 -translate-y-4 scale-150 text-white">
+                        <svg width="120" height="120" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z" />
+                        </svg>
                     </div>
-                    <button onclick="openAddDriverModal()" class="inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold rounded-2xl text-white bg-indigo-600 hover:bg-indigo-700 shadow-md transition-all">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <div class="relative z-10">
+                        <h3 class="text-lg font-bold tracking-wide">Driver Account Manager</h3>
+                        <p class="text-indigo-200 text-xs mt-1">Kelola pendaftaran akun driver, password, email, dan pantau saldo dompet mereka.</p>
+                    </div>
+                    <button onclick="openAddDriverModal()" class="relative z-10 inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-extrabold rounded-2xl text-slate-900 bg-emerald-400 hover:bg-emerald-300 shadow-lg shadow-emerald-400/20 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                         Tambah Driver Baru
                     </button>
                 </div>
@@ -414,8 +435,8 @@
 
     <!-- Order Detail Modal -->
     <div id="orderDetailModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-gray-100 transform transition-all duration-300">
-            <div class="p-6 bg-gradient-to-r from-indigo-900 to-slate-900 text-white flex justify-between items-center">
+        <div class="bg-white rounded-3xl w-full overflow-hidden shadow-2xl border border-gray-100 transform transition-all duration-300" style="max-width: 512px;">
+            <div class="p-6 text-white flex justify-between items-center" style="background: linear-gradient(135deg, #1e1b4b, #0f172a);">
                 <h3 class="text-lg font-bold">Detail Orderan <span id="detail_order_id"></span></h3>
                 <button onclick="closeOrderDetailModal()" class="text-white/80 hover:text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -476,8 +497,8 @@
 
     <!-- Add Driver Modal -->
     <div id="addDriverModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-100 transform transition-all duration-300">
-            <div class="p-6 bg-gradient-to-r from-indigo-900 to-slate-900 text-white flex justify-between items-center">
+        <div class="bg-white rounded-3xl w-full overflow-hidden shadow-2xl border border-gray-100 transform transition-all duration-300" style="max-width: 450px;">
+            <div class="p-6 text-white flex justify-between items-center" style="background: linear-gradient(135deg, #1e1b4b, #0f172a);">
                 <h3 class="text-lg font-bold">Daftarkan Driver Baru</h3>
                 <button onclick="closeAddDriverModal()" class="text-white/80 hover:text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -511,8 +532,8 @@
 
     <!-- Edit Driver Modal -->
     <div id="editDriverModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-gray-100 transform transition-all duration-300">
-            <div class="p-6 bg-gradient-to-r from-indigo-900 to-slate-900 text-white flex justify-between items-center">
+        <div class="bg-white rounded-3xl w-full overflow-hidden shadow-2xl border border-gray-100 transform transition-all duration-300" style="max-width: 450px;">
+            <div class="p-6 text-white flex justify-between items-center" style="background: linear-gradient(135deg, #1e1b4b, #0f172a);">
                 <h3 class="text-lg font-bold">Edit Akun Driver</h3>
                 <button onclick="closeEditDriverModal()" class="text-white/80 hover:text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -547,7 +568,7 @@
                 </div>
             </form>
         </div>
-    </div>    </div>
+    </div>
 
     <!-- Script to handle AJAX Order Creation & Google Maps Integration -->
     <script>
@@ -561,6 +582,14 @@
         let originAutocomplete;
         let destinationAutocomplete;
         let pendingPoint = null;
+
+        // Helper function for currency formatting
+        function formatRupiah(number) {
+            return 'Rp ' + parseFloat(number || 0).toLocaleString('id-ID', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            });
+        }
         
         // Dynamic Script Loader for Google Maps JS API
         window.addEventListener('DOMContentLoaded', () => {
@@ -829,9 +858,9 @@
                     <div class="font-bold flex justify-between text-indigo-800"><span>Jarak Bulat:</span> <span>${ceilKm} Km</span></div>
                     <hr class="my-1 border-indigo-200">
                     <div class="flex justify-between"><span>3 Km Pertama (Flat):</span> <span>Rp 8.000</span></div>
-                    <div class="flex justify-between"><span>Sisa ${extraKm} Km (${extraKm} x Rp 3.000):</span> <span>Rp ${extraPrice.toLocaleString('id-ID')}</span></div>
+                    <div class="flex justify-between"><span>Sisa ${extraKm} Km (${extraKm} x Rp 3.000):</span> <span>${formatRupiah(extraPrice)}</span></div>
                     <hr class="my-1 border-indigo-200">
-                    <div class="flex justify-between font-bold text-indigo-900 text-sm mt-0.5"><span>Total Tarif:</span> <span>Rp ${price.toLocaleString('id-ID')}</span></div>
+                    <div class="flex justify-between font-bold text-indigo-900 text-sm mt-0.5"><span>Total Tarif:</span> <span>${formatRupiah(price)}</span></div>
                 `;
             }
         }
@@ -1153,9 +1182,9 @@
                     document.getElementById('detail_passenger_name').innerText = order.passenger_name || 'N/A';
                     document.getElementById('detail_payment_type').innerText = order.payment_type === 'qris' ? '📱 QRIS (Midtrans)' : '💵 Tunai (Cash)';
                     
-                    document.getElementById('detail_price').innerText = `Rp ${parseFloat(order.price).toLocaleString('id-ID')}`;
-                    document.getElementById('detail_admin_fee').innerText = `- Rp ${parseFloat(order.admin_fee || 0).toLocaleString('id-ID')}`;
-                    document.getElementById('detail_driver_fare').innerText = `Rp ${parseFloat(order.driver_fare || 0).toLocaleString('id-ID')}`;
+                    document.getElementById('detail_price').innerText = formatRupiah(order.price);
+                    document.getElementById('detail_admin_fee').innerText = `- ${formatRupiah(order.admin_fee || 0)}`;
+                    document.getElementById('detail_driver_fare').innerText = formatRupiah(order.driver_fare || 0);
 
                     let badgeHtml = '';
                     if (order.status === 'pending') {
@@ -1201,9 +1230,9 @@
             if (priceVal > 0) {
                 breakdownEl.classList.remove('hidden');
                 breakdownEl.innerHTML = `
-                    <div class="flex justify-between"><span>Tarif Penumpang:</span><span class="font-bold text-gray-900">Rp ${priceVal.toLocaleString('id-ID')}</span></div>
-                    <div class="flex justify-between text-rose-600"><span>Potongan Admin (${type === 'percentage' ? val + '%' : 'Nominal'}):</span><span>- Rp ${adminFee.toLocaleString('id-ID')}</span></div>
-                    <div class="flex justify-between text-emerald-600 font-bold"><span>Pendapatan Driver:</span><span>Rp ${driverFare.toLocaleString('id-ID')}</span></div>
+                    <div class="flex justify-between"><span>Tarif Penumpang:</span><span class="font-bold text-gray-900">${formatRupiah(priceVal)}</span></div>
+                    <div class="flex justify-between text-rose-600"><span>Potongan Admin (${type === 'percentage' ? val + '%' : 'Nominal'}):</span><span>- ${formatRupiah(adminFee)}</span></div>
+                    <div class="flex justify-between text-emerald-600 font-bold"><span>Pendapatan Driver:</span><span>${formatRupiah(driverFare)}</span></div>
                 `;
             } else {
                 breakdownEl.classList.add('hidden');
