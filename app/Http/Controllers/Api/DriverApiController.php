@@ -123,13 +123,7 @@ class DriverApiController extends Controller
             'status' => $request->status,
         ]);
 
-        // Increment driver balance on completion (using driver_fare instead of full customer price)
-        if ($oldStatus !== 'completed' && $request->status == 'completed') {
-            $driver = $order->driver;
-            if ($driver) {
-                $driver->increment('balance', $order->driver_fare);
-            }
-        }
+
 
         return response()->json([
             'success' => true,
@@ -315,11 +309,7 @@ class DriverApiController extends Controller
                         'status' => 'completed',
                     ]);
 
-                    // Increment driver balance with driver_fare
-                    $driver = $order->driver;
-                    if ($driver) {
-                        $driver->increment('balance', $order->driver_fare);
-                    }
+
                 }
 
                 return response()->json([
@@ -368,11 +358,7 @@ class DriverApiController extends Controller
                 'status' => 'completed',
             ]);
 
-            // Increment driver balance with driver_fare
-            $driver = $order->driver;
-            if ($driver) {
-                $driver->increment('balance', $order->driver_fare);
-            }
+
         }
 
         return response()->json([
@@ -404,5 +390,67 @@ class DriverApiController extends Controller
         }
 
         return response()->json(['success' => true, 'data' => $driver], 200);
+    }
+
+    /**
+     * Simulate withdrawal for driver (Demo Mode).
+     */
+    public function withdraw(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'driver_id' => 'required|exists:drivers,id',
+            'bank_name' => 'required|string|max:255',
+            'account_number' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:1',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $amount = floatval($request->amount);
+
+        // Fetch driver and wallet
+        $driver = Driver::find($request->driver_id);
+        $wallet = \App\Models\DriverWallet::firstOrCreate(
+            ['driver_id' => $driver->id],
+            ['balance' => 0]
+        );
+
+        if ($wallet->balance < $amount) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Saldo tidak cukup untuk melakukan penarikan.',
+            ], 400);
+        }
+
+        // Deduct from wallet balance
+        $wallet->decrement('balance', $amount);
+
+        // Deduct from driver table balance column to keep in sync
+        $driver->decrement('balance', $amount);
+
+        // Record the transaction
+        $refId = 'TX-WD-' . time() . '-' . rand(1000, 9999);
+        \App\Models\Transaction::create([
+            'reference_id' => $refId,
+            'driver_id' => $driver->id,
+            'type' => 'withdrawal_out',
+            'amount' => $amount,
+            'description' => "Penarikan saldo ke Bank {$request->bank_name} ({$request->account_number}) - Simulasi Berhasil",
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Penarikan simulasi berhasil.',
+            'data' => [
+                'reference_id' => $refId,
+                'wallet_balance' => $wallet->balance,
+            ]
+        ], 200);
     }
 }

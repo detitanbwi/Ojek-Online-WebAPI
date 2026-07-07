@@ -16,7 +16,7 @@
     <div class="space-y-6">
         
         <!-- Tab Switcher Buttons -->
-        <div class="flex border-b border-slate-200 dark:border-slate-850 gap-4">
+        <div class="flex border-b border-slate-200 dark:border-slate-800 gap-4">
             <button onclick="switchTab('customers')" id="tabBtn_customers" 
                 class="pb-4 text-sm font-bold border-b-2 border-indigo-650 dark:border-indigo-500 text-indigo-600 dark:text-indigo-455 transition-all duration-150">
                 Daftar Customer

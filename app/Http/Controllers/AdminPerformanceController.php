@@ -7,16 +7,23 @@ use Illuminate\Http\Request;
 
 class AdminPerformanceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Fetch drivers ranked by completed orders count
-        $drivers = Driver::withCount(['orders' => function ($query) {
-            $query->where('status', 'completed');
+        // Default to start of month to end of month
+        $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', now()->endOfMonth()->toDateString());
+
+        // Fetch drivers ranked by completed orders count in the date range
+        $drivers = Driver::withCount(['orders' => function ($query) use ($startDate, $endDate) {
+            $query->where('status', 'completed')
+                  ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
         }])
-        ->withAvg('orders', 'rating_driver')
+        ->withAvg(['orders' => function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+        }], 'rating_driver')
         ->orderByDesc('orders_count')
         ->get();
 
-        return view('admin.performance', compact('drivers'));
+        return view('admin.performance', compact('drivers', 'startDate', 'endDate'));
     }
 }

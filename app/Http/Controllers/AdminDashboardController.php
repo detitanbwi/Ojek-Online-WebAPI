@@ -17,7 +17,10 @@ class AdminDashboardController extends Controller
         $totalOrders = Order::count();
         $totalRevenue = Order::where('status', 'completed')->sum('admin_fee');
 
+        $commissionType = DB::table('admin_settings')->where('key', 'commission_type')->value('value') ?? 'percentage';
+        $commissionValue = floatval(DB::table('admin_settings')->where('key', 'commission_value')->value('value') ?? 10);
+
         // Let's pass this to view
-        return view('admin.dashboard', compact('totalDrivers', 'totalCustomers', 'totalOrders', 'totalRevenue'));
+        return view('admin.dashboard', compact('totalDrivers', 'totalCustomers', 'totalOrders', 'totalRevenue', 'commissionType', 'commissionValue'));
     }
 }

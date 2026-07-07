@@ -39,15 +39,16 @@
         <!-- Favicon -->
         <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     </head>
-    <body class="font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex transition-colors duration-200">
+    <body class="font-sans antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 h-screen overflow-hidden flex transition-colors duration-200">
         
         <!-- Sidebar Navigation -->
-        <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200/60 dark:border-slate-800 flex flex-col justify-between shrink-0 transition-colors duration-200">
+        <aside class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200/60 dark:border-slate-800 flex flex-col justify-between shrink-0 transition-colors duration-200 h-full">
             <div>
                 <!-- Brand Logo & Header -->
                 <div class="h-16 flex items-center px-6 border-b border-slate-200/60 dark:border-slate-800 gap-3">
-                    <x-application-logo type="transparent" class="h-9 w-auto" />
-                    <span class="font-black text-lg tracking-wider text-slate-900 dark:text-white">Wirojek</span>
+                    <x-application-logo type="transparent" class="h-9 w-auto dark:hidden" />
+                    <x-application-logo type="white" class="h-9 w-auto hidden dark:block" />
+                    <span class="font-black text-xl tracking-wider text-[#0a2f63] dark:text-white font-sans uppercase">WIROJEK</span>
                 </div>
 
                 <!-- Navigation Menu -->
@@ -107,7 +108,7 @@
                 </div>
                 
                 <div class="grid grid-cols-2 gap-2">
-                    <a href="{{ route('profile.edit') }}" class="flex justify-center items-center py-2 px-3 bg-slate-100 dark:bg-slate-850 hover:bg-slate-200 dark:hover:bg-slate-800 text-xs font-bold rounded-xl text-slate-700 dark:text-slate-300 transition">
+                    <a href="{{ route('profile.edit') }}" class="flex justify-center items-center py-2 px-3 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold rounded-xl text-slate-700 dark:text-slate-300 transition">
                         Profile
                     </a>
                     
@@ -122,7 +123,7 @@
         </aside>
 
         <!-- Main Content Area -->
-        <div class="flex-grow flex flex-col min-h-screen min-w-0">
+        <div class="flex-grow flex flex-col h-screen min-w-0 overflow-hidden">
             <!-- Top Navbar Header -->
             <header class="h-16 bg-white/70 dark:bg-slate-900/50 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-800 px-8 flex items-center justify-between shrink-0 transition-colors duration-200">
                 <div class="flex items-center gap-4">
@@ -134,7 +135,7 @@
                 </div>
                 <div class="flex items-center gap-4">
                     <!-- Light/Dark Mode Switcher Toggle Button -->
-                    <button id="theme-toggle" type="button" class="text-slate-500 dark:text-slate-450 hover:bg-slate-100 dark:hover:bg-slate-850 focus:outline-none rounded-xl text-sm p-2 transition">
+                    <button id="theme-toggle" type="button" class="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none rounded-xl text-sm p-2 transition">
                         <!-- Dark Icon (Moon) -->
                         <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                             <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>

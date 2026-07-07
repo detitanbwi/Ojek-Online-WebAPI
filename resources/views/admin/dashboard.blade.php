@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-extrabold text-xl bg-gradient-to-r from-indigo-555 to-pink-500 dark:from-indigo-400 dark:to-pink-400 bg-clip-text text-transparent tracking-tight">
+        <h2 class="font-extrabold text-xl bg-gradient-to-r from-indigo-600 to-pink-500 dark:from-indigo-400 dark:to-pink-400 bg-clip-text text-transparent tracking-tight">
             {{ __('Dashboard Overview') }}
         </h2>
     </x-slot>
@@ -116,7 +116,7 @@
                         </div>
                         <div class="flex justify-between border-b border-slate-200 dark:border-slate-800/80 pb-2">
                             <span class="text-slate-500 dark:text-slate-400">Admin Platform Share</span>
-                            <span class="font-bold text-slate-700 dark:text-slate-200">10% / Flat Rp 3.000</span>
+                            <span class="font-bold text-slate-700 dark:text-slate-200">{{ $commissionType === 'percentage' ? $commissionValue . '%' : 'Rp ' . number_format($commissionValue, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between pb-1">
                             <span class="text-slate-500 dark:text-slate-400">Jam Operasional</span>

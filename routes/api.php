@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\DriverApiController;
 use App\Http\Controllers\Api\AdminOrderApiController;
+use App\Http\Controllers\Api\CustomerApiController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -20,6 +21,10 @@ Route::post('/driver/order/status', [DriverApiController::class, 'updateOrderSta
 Route::post('/driver/order/charge-qris', [DriverApiController::class, 'chargeQris']);
 Route::post('/driver/order/check-payment', [DriverApiController::class, 'checkPayment']);
 Route::post('/driver/order/simulate-payment', [DriverApiController::class, 'simulatePayment']);
+Route::post('/driver/withdraw', [DriverApiController::class, 'withdraw']);
 Route::post('/admin/create-order', [AdminOrderApiController::class, 'createOrder']);
 Route::get('/admin/drivers', [AdminOrderApiController::class, 'getDrivers']);
 Route::post('/admin/driver/detach', [AdminOrderApiController::class, 'detachDriver']);
+
+Route::post('/customer/create-order', [CustomerApiController::class, 'createOrder']);
+Route::post('/orders/{id}/rate', [CustomerApiController::class, 'rateOrder']);

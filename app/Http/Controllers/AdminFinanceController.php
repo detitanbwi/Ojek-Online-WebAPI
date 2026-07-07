@@ -8,11 +8,27 @@ use Illuminate\Http\Request;
 
 class AdminFinanceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $adminBalance = Order::where('status', 'completed')->sum('admin_fee');
-        $transactions = Transaction::with(['order', 'driver'])->latest()->get();
+        // Default to start of month to end of month
+        $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', now()->endOfMonth()->toDateString());
 
-        return view('admin.finance', compact('adminBalance', 'transactions'));
+        $commissionInSum = Transaction::where('type', 'commission_in')
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->sum('amount');
+            
+        $withdrawalOutSum = Transaction::where('type', 'withdrawal_out')
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->sum('amount');
+            
+        $adminBalance = $commissionInSum - $withdrawalOutSum;
+        
+        $transactions = Transaction::with(['order', 'driver'])
+            ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->latest()
+            ->get();
+
+        return view('admin.finance', compact('adminBalance', 'transactions', 'startDate', 'endDate'));
     }
 }
