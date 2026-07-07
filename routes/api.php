@@ -27,4 +27,5 @@ Route::get('/admin/drivers', [AdminOrderApiController::class, 'getDrivers']);
 Route::post('/admin/driver/detach', [AdminOrderApiController::class, 'detachDriver']);
 
 Route::post('/customer/create-order', [CustomerApiController::class, 'createOrder']);
+Route::post('/customer/estimate-fares', [CustomerApiController::class, 'estimateFares']);
 Route::post('/orders/{id}/rate', [CustomerApiController::class, 'rateOrder']);

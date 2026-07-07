@@ -18,6 +18,7 @@ class AdminDriverController extends Controller
             'email' => 'required|string|email|max:255|unique:drivers',
             'phone' => 'required|string|max:20|unique:drivers',
             'password' => 'required|string|min:6',
+            'vehicle_type' => 'required|in:wiro_ride,wiro_car',
         ]);
 
         Driver::create([
@@ -26,6 +27,7 @@ class AdminDriverController extends Controller
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
             'status_online' => false,
+            'vehicle_type' => $request->vehicle_type,
             'balance' => 0.00,
         ]);
 
@@ -40,6 +42,7 @@ class AdminDriverController extends Controller
             'phone' => 'required|string|max:20|unique:drivers,phone,' . $driver->id,
             'balance' => 'required|numeric|min:0',
             'password' => 'nullable|string|min:6',
+            'vehicle_type' => 'required|in:wiro_ride,wiro_car',
         ]);
 
         $updateData = [
@@ -47,6 +50,7 @@ class AdminDriverController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'balance' => $request->balance,
+            'vehicle_type' => $request->vehicle_type,
         ];
 
         if ($request->filled('password')) {

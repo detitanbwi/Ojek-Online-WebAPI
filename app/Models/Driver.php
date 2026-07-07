@@ -17,6 +17,7 @@ class Driver extends Model
         'password',
         'onesignal_player_id',
         'status_online',
+        'vehicle_type',
         'balance',
     ];
 

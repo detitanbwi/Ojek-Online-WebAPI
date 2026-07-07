@@ -126,7 +126,7 @@
                                         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                                             <span class="text-slate-500 text-sm">Rp</span>
                                         </div>
-                                        <input type="number" id="price" name="price" required min="0"
+                                        <input type="text" id="price" name="price" required oninput="formatRupiahInput(this)"
                                             class="w-full rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 py-3 pl-10 pr-4 text-slate-850 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-indigo-500 transition-all duration-200 text-sm font-bold text-indigo-600 dark:text-indigo-400"
                                             placeholder="Tarif otomatis">
                                     </div>
@@ -347,6 +347,7 @@
                     <tr class="bg-slate-50 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800">
                         <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID</th>
                         <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Driver</th>
+                        <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Layanan</th>
                         <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rute (Jemput → Tujuan)</th>
                         <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Tarif Cust</th>
                         <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Net Driver</th>
@@ -361,6 +362,11 @@
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
                             <td class="p-4 font-mono font-semibold text-indigo-650 dark:text-indigo-400">#{{ $order->id }}</td>
                             <td class="p-4 font-medium">{{ $order->driver->name ?? 'N/A' }}</td>
+                            <td class="p-4">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold {{ $order->service_type === 'wiro_ride' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-indigo-500/10 text-indigo-500 border border-indigo-500/20' }}">
+                                    {{ $order->service_type === 'wiro_ride' ? 'WiroRide' : 'WiroCar' }}
+                                </span>
+                            </td>
                             <td class="p-4">
                                 <div class="font-medium text-slate-800 dark:text-slate-200 truncate max-w-xs" title="{{ $order->origin }}">{{ $order->origin }}</div>
                                 <div class="text-xs text-slate-500 mt-0.5 truncate max-w-xs" title="{{ $order->destination }}">→ {{ $order->destination }}</div>
@@ -386,7 +392,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="p-8 text-center text-slate-450 dark:text-slate-500 text-sm">Belum ada orderan yang dibuat.</td>
+                            <td colspan="10" class="p-8 text-center text-slate-450 dark:text-slate-500 text-sm">Belum ada orderan yang dibuat.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -426,10 +432,14 @@
                         <div id="detail_status_container" class="mt-1"></div>
                     </div>
                 </div>
-                <div class="border-t border-slate-150 dark:border-slate-800 pt-4 grid grid-cols-2 gap-4">
+                <div class="border-t border-slate-150 dark:border-slate-800 pt-4 grid grid-cols-3 gap-4">
                     <div>
                         <span class="block text-[10px] uppercase font-bold text-slate-500">Nama Penumpang</span>
                         <span id="detail_passenger_name" class="text-sm font-semibold text-slate-800 dark:text-slate-200"></span>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] uppercase font-bold text-slate-500">Layanan</span>
+                        <span id="detail_service_type" class="text-sm font-semibold text-slate-800 dark:text-slate-200"></span>
                     </div>
                     <div>
                         <span class="block text-[10px] uppercase font-bold text-slate-500">Metode Bayar</span>
@@ -516,6 +526,21 @@
                 maximumFractionDigits: 0
             });
         }
+
+        // Format a raw number into thousand-separated string (e.g. 11000 -> "11.000")
+        function formatRupiahValue(number) {
+            return Math.round(parseFloat(number || 0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        // Live-format an input field value with thousand separators
+        function formatRupiahInput(el) {
+            let cursorPos = el.selectionStart;
+            let raw = el.value.replace(/\D/g, '');
+            let formatted = raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            let diff = formatted.length - el.value.length;
+            el.value = formatted;
+            el.setSelectionRange(cursorPos + diff, cursorPos + diff);
+        }
         
         // Dynamic Script Loader for Google Maps JS API
         window.addEventListener('DOMContentLoaded', () => {
@@ -559,6 +584,11 @@
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 13,
                 center: defaultCenter,
+                disableDefaultUI: true,
+                zoomControl: true,
+                zoomControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_BOTTOM
+                },
                 styles: [
                     {
                         "featureType": "all",
@@ -601,7 +631,7 @@
                         price = 8000 + (ceilKm - 3) * 3000;
                     }
                     
-                    document.getElementById('price').value = price;
+                    document.getElementById('price').value = formatRupiahValue(price);
                     showFareBreakdown(distanceKm, ceilKm, price);
                     
                     document.getElementById('mapStatusOverlay').classList.remove('hidden');
@@ -795,7 +825,7 @@
                         price = 8000 + (ceilKm - 3) * 3000;
                     }
                     
-                    document.getElementById('price').value = price;
+                    document.getElementById('price').value = formatRupiahValue(price);
                     showFareBreakdown(distanceKm, ceilKm, price);
                     
                     statusText.textContent = `Jarak: ${distanceKm.toFixed(2)} km (${ceilKm} km)`;
@@ -853,7 +883,7 @@
             const formData = {
                 origin: document.getElementById('origin').value,
                 destination: document.getElementById('destination').value,
-                price: document.getElementById('price').value,
+                price: document.getElementById('price').value.replace(/\./g, ''),
                 driver_id: document.getElementById('driver_id').value,
                 passenger_name: document.getElementById('passenger_name').value,
                 payment_type: document.getElementById('payment_type').value,
@@ -1021,6 +1051,7 @@
                     document.getElementById('detail_destination').innerText = order.destination;
                     document.getElementById('detail_driver_name').innerText = order.driver ? order.driver.name : 'Belum diambil';
                     document.getElementById('detail_passenger_name').innerText = order.passenger_name || 'N/A';
+                    document.getElementById('detail_service_type').innerText = order.service_type === 'wiro_car' ? 'WiroCar' : 'WiroRide';
                     document.getElementById('detail_payment_type').innerText = order.payment_type === 'qris' ? '📱 QRIS (Midtrans)' : '💵 Tunai (Cash)';
                     
                     document.getElementById('detail_price').innerText = formatRupiah(order.price);
@@ -1058,7 +1089,7 @@
 
             document.getElementById('origin').value = order.origin;
             document.getElementById('destination').value = order.destination;
-            document.getElementById('price').value = Math.round(order.price);
+            document.getElementById('price').value = formatRupiahValue(order.price);
             document.getElementById('passenger_name').value = order.passenger_name || '';
             document.getElementById('payment_type').value = order.payment_type || 'cash';
 
@@ -1088,7 +1119,7 @@
         }
 
         function updateBreakdownPreview() {
-            const priceVal = parseFloat(document.getElementById('price').value) || 0;
+            const priceVal = parseFloat(document.getElementById('price').value.replace(/\./g, '')) || 0;
             const type = "{{ $settings['commission_type'] ?? 'percentage' }}";
             const val = parseFloat("{{ $settings['commission_value'] ?? '10' }}") || 0;
             const roundDown = "{{ $settings['round_hundreds_down'] ?? 'true' }}" === 'true';

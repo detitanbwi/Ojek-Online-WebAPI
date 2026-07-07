@@ -8,6 +8,7 @@ use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\AdminAccountController;
 use App\Http\Controllers\AdminPerformanceController;
 use App\Http\Controllers\AdminFinanceController;
+use App\Http\Controllers\AdminServiceController;
 
 Route::get('/', function () {
     return redirect()->route('dashboard');
@@ -20,6 +21,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/accounts', [AdminAccountController::class, 'index'])->name('admin.accounts.index');
     Route::get('/admin/performance', [AdminPerformanceController::class, 'index'])->name('admin.performance.index');
     Route::get('/admin/finance', [AdminFinanceController::class, 'index'])->name('admin.finance.index');
+    Route::get('/admin/services', [AdminServiceController::class, 'index'])->name('admin.services.index');
+    Route::post('/admin/services', [AdminServiceController::class, 'store'])->name('admin.services.store');
+    Route::put('/admin/services/{service}', [AdminServiceController::class, 'update'])->name('admin.services.update');
+    Route::delete('/admin/services/{service}', [AdminServiceController::class, 'destroy'])->name('admin.services.destroy');
     
     // Profile Edit
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

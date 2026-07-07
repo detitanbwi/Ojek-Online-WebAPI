@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -20,9 +21,13 @@ class Order extends Model
             if ($order->isDirty('status') && $order->status === 'completed') {
                 $driver = $order->driver;
                 if ($driver) {
+                    // Fetch dynamic commission rate from services table based on service_type
+                    $service = DB::table('services')->where('service_type', $order->service_type)->first();
+                    $commissionRate = $service ? (floatval($service->admin_commission_pct) / 100.0) : 0.10;
+
                     // Calculate commission and driver share
                     $price = floatval($order->price);
-                    $adminFee = $price * self::$adminCommissionRate;
+                    $adminFee = $price * $commissionRate;
                     $driverFare = max(0.0, $price - $adminFee);
 
                     // Update order fields quietly to prevent infinite loops
@@ -42,13 +47,14 @@ class Order extends Model
                     $driver->increment('balance', $driverFare);
 
                     // Create transaction record
+                    $pctText = ($commissionRate * 100) . '%';
                     \App\Models\Transaction::create([
                         'reference_id' => 'TX-COM-' . $order->id . '-' . time() . '-' . rand(1000, 9999),
                         'order_id' => $order->id,
                         'driver_id' => $driver->id,
                         'type' => 'commission_in',
                         'amount' => $adminFee,
-                        'description' => "Komisi admin 10% dari order #{$order->id} (Tarif: Rp " . number_format($price, 0, ',', '.') . ")",
+                        'description' => "Komisi admin {$pctText} dari order #{$order->id} (Tarif: Rp " . number_format($price, 0, ',', '.') . ")",
                     ]);
                 }
             }
@@ -64,6 +70,7 @@ class Order extends Model
         'driver_fare',
         'admin_fee',
         'status',
+        'service_type',
         'payment_type',
         'midtrans_order_id',
         'passenger_name',

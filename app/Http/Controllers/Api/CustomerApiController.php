@@ -22,6 +22,7 @@ class CustomerApiController extends Controller
             'destination' => 'required|string',
             'price' => 'required|numeric|min:0',
             'payment_type' => 'required|in:cash,qris',
+            'service_type' => 'nullable|string|in:wiro_ride,wiro_car',
         ]);
 
         if ($validator->fails()) {
@@ -34,21 +35,18 @@ class CustomerApiController extends Controller
 
         try {
             $order = DB::transaction(function () use ($request) {
-                // Fetch settings
-                $commissionType = DB::table('admin_settings')->where('key', 'commission_type')->value('value') ?? 'percentage';
-                $commissionValue = floatval(DB::table('admin_settings')->where('key', 'commission_value')->value('value') ?? 10);
+                $serviceType = $request->service_type ?? 'wiro_ride';
+                
+                // Fetch dynamic service setting from db
+                $service = DB::table('services')->where('service_type', $serviceType)->first();
+                $commissionPct = $service ? floatval($service->admin_commission_pct) : 10.0;
+                
                 $roundDown = DB::table('admin_settings')->where('key', 'round_hundreds_down')->value('value') === 'true';
 
                 $price = floatval($request->price);
-                $adminFee = 0.0;
-
-                if ($commissionType === 'percentage') {
-                    $adminFee = $price * ($commissionValue / 100.0);
-                    if ($roundDown) {
-                        $adminFee = floor($adminFee / 100.0) * 100.0;
-                    }
-                } else {
-                    $adminFee = $commissionValue;
+                $adminFee = $price * ($commissionPct / 100.0);
+                if ($roundDown) {
+                    $adminFee = floor($adminFee / 100.0) * 100.0;
                 }
 
                 $driverFare = max(0.0, $price - $adminFee);
@@ -65,6 +63,7 @@ class CustomerApiController extends Controller
                     'driver_fare' => $driverFare,
                     'admin_fee' => $adminFee,
                     'status' => 'pending',
+                    'service_type' => $serviceType,
                     'passenger_name' => $passengerName,
                     'payment_type' => $request->payment_type,
                 ]);
@@ -88,6 +87,71 @@ class CustomerApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create order',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get estimated fares for WiroRide and WiroCar based on distance.
+     */
+    public function estimateFares(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'distance' => 'required|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $distance = floatval($request->distance);
+            $services = DB::table('services')->get();
+
+            $estimates = [];
+            foreach ($services as $service) {
+                // Calculation: base_price + max(0, distance - free_flat_km) * price_per_km
+                $price = floatval($service->base_price);
+                $freeFlat = floatval($service->free_flat_km);
+                
+                if ($distance > $freeFlat) {
+                    $price += ($distance - $freeFlat) * floatval($service->price_per_km);
+                }
+
+                // Round to nearest 1000 for premium user experience
+                $price = ceil($price / 1000.0) * 1000.0;
+
+                $description = $service->service_type === 'wiro_ride'
+                    ? 'Ojek Motor Cepat (3-5 mnt)'
+                    : 'Mobil Nyaman AC (5-8 mnt)';
+
+                $image = $service->service_type === 'wiro_ride'
+                    ? 'assets/images/wiro_ride.png'
+                    : 'assets/images/wiro_car.png';
+
+                $estimates[] = [
+                    'id' => $service->service_type,
+                    'name' => $service->name,
+                    'description' => $description,
+                    'image' => $image,
+                    'price' => intval($price),
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $estimates
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to calculate fares',
                 'error' => $e->getMessage()
             ], 500);
         }

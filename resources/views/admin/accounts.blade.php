@@ -86,6 +86,7 @@
                                 <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nama</th>
                                 <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email</th>
                                 <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">No. HP</th>
+                                <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Layanan</th>
                                 <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Saldo Wallet</th>
                                 <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status Online</th>
                                 <th class="p-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Aksi</th>
@@ -98,6 +99,11 @@
                                     <td class="p-4 font-bold text-slate-900 dark:text-slate-200">{{ $driver->name }}</td>
                                     <td class="p-4">{{ $driver->email ?? 'Belum diset' }}</td>
                                     <td class="p-4">{{ $driver->phone }}</td>
+                                    <td class="p-4">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold {{ $driver->vehicle_type === 'wiro_ride' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-indigo-500/10 text-indigo-500 border border-indigo-500/20' }}">
+                                            {{ $driver->vehicle_type === 'wiro_ride' ? 'WiroRide (Motor)' : 'WiroCar (Mobil)' }}
+                                        </span>
+                                    </td>
                                     <td class="p-4 font-semibold text-emerald-600 dark:text-emerald-450">Rp {{ number_format($driver->balance, 0, ',', '.') }}</td>
                                     <td class="p-4">
                                         @if($driver->status_online)
@@ -120,7 +126,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="p-8 text-center text-slate-400 dark:text-slate-500 text-sm">Belum ada driver yang terdaftar.</td>
+                                    <td colspan="8" class="p-8 text-center text-slate-400 dark:text-slate-500 text-sm">Belum ada driver yang terdaftar.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -155,6 +161,13 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Nomor HP</label>
                     <input type="text" name="phone" required class="w-full rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 py-2.5 px-4 text-sm text-slate-900 dark:text-slate-100 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Tipe Kendaraan / Layanan</label>
+                    <select name="vehicle_type" required class="w-full rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 py-2.5 px-4 text-sm text-slate-900 dark:text-slate-100 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-indigo-500">
+                        <option value="wiro_ride">WiroRide (Motor)</option>
+                        <option value="wiro_car">WiroCar (Mobil)</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Password Akun</label>
@@ -193,15 +206,22 @@
                     <input type="text" id="edit_driver_phone" name="phone" required class="w-full rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 py-2.5 px-4 text-sm text-slate-900 dark:text-slate-100 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-indigo-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Saldo Dompet (Rupiah)</label>
+                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Tipe Kendaraan / Layanan</label>
+                    <select id="edit_driver_vehicle_type" name="vehicle_type" required class="w-full rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 py-2.5 px-4 text-sm text-slate-900 dark:text-slate-100 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-indigo-500">
+                        <option value="wiro_ride">WiroRide (Motor)</option>
+                        <option value="wiro_car">WiroCar (Mobil)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-2">Saldo Dompet (Rupiah)</label>
                     <input type="number" id="edit_driver_balance" name="balance" required min="0" class="w-full rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 py-2.5 px-4 text-sm text-emerald-600 dark:text-emerald-450 font-bold focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-indigo-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Password Baru (Biarkan kosong jika tetap)</label>
+                    <label class="block text-xs font-semibold text-slate-550 dark:text-slate-400 uppercase tracking-wider mb-2">Password Baru (Biarkan kosong jika tetap)</label>
                     <input type="password" name="password" minlength="6" class="w-full rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 py-2.5 px-4 text-sm text-slate-900 dark:text-slate-100 focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 focus:ring-indigo-500" placeholder="Kosongkan jika tidak diganti">
                 </div>
                 <div class="flex justify-end gap-3 pt-2">
-                    <button type="button" onclick="closeEditDriverModal()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-all">Batal</button>
+                    <button type="button" onclick="closeEditDriverModal()" class="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition-all">Batal</button>
                     <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-600/20">Simpan Perubahan</button>
                 </div>
             </form>
@@ -248,6 +268,7 @@
             document.getElementById('edit_driver_email').value = driver.email || '';
             document.getElementById('edit_driver_phone').value = driver.phone;
             document.getElementById('edit_driver_balance').value = driver.balance;
+            document.getElementById('edit_driver_vehicle_type').value = driver.vehicle_type || 'wiro_ride';
             document.getElementById('editDriverModal').classList.remove('hidden');
         }
         function closeEditDriverModal() {

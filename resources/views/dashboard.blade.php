@@ -113,7 +113,7 @@
                                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                                                     <span class="text-gray-500 text-sm">Rp</span>
                                                 </div>
-                                                <input type="number" id="price" name="price" required min="0"
+                                                <input type="text" id="price" name="price" required oninput="formatRupiahInput(this)"
                                                     class="w-full rounded-2xl border-gray-200 bg-gray-50/50 py-3 pl-10 pr-4 text-gray-800 placeholder-gray-400 focus:border-indigo-500 focus:bg-white focus:ring-indigo-500 transition-all duration-200 text-sm font-bold text-indigo-600"
                                                     placeholder="Tarif otomatis">
                                             </div>
@@ -594,6 +594,21 @@
                 maximumFractionDigits: 0
             });
         }
+
+        // Format a raw number into thousand-separated string (e.g. 11000 -> "11.000")
+        function formatRupiahValue(number) {
+            return Math.round(parseFloat(number || 0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        // Live-format an input field value with thousand separators
+        function formatRupiahInput(el) {
+            let cursorPos = el.selectionStart;
+            let raw = el.value.replace(/\D/g, '');
+            let formatted = raw.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            let diff = formatted.length - el.value.length;
+            el.value = formatted;
+            el.setSelectionRange(cursorPos + diff, cursorPos + diff);
+        }
         
         // Dynamic Script Loader for Google Maps JS API
         window.addEventListener('DOMContentLoaded', () => {
@@ -637,6 +652,11 @@
             map = new google.maps.Map(document.getElementById('map'), {
                 zoom: 13,
                 center: defaultCenter,
+                disableDefaultUI: true,
+                zoomControl: true,
+                zoomControlOptions: {
+                    position: google.maps.ControlPosition.RIGHT_BOTTOM
+                },
                 styles: [
                     {
                         "featureType": "administrative.land_parcel",
@@ -691,7 +711,7 @@
                         price = 8000 + (ceilKm - 3) * 3000;
                     }
                     
-                    document.getElementById('price').value = price;
+                    document.getElementById('price').value = formatRupiahValue(price);
                     
                     // Render fare breakdown
                     showFareBreakdown(distanceKm, ceilKm, price);
@@ -902,7 +922,7 @@
                         price = 8000 + (ceilKm - 3) * 3000;
                     }
                     
-                    document.getElementById('price').value = price;
+                    document.getElementById('price').value = formatRupiahValue(price);
                     
                     // Display fare breakdown
                     showFareBreakdown(distanceKm, ceilKm, price);
@@ -963,7 +983,7 @@
             const formData = {
                 origin: document.getElementById('origin').value,
                 destination: document.getElementById('destination').value,
-                price: document.getElementById('price').value,
+                price: document.getElementById('price').value.replace(/\./g, ''),
                 driver_id: document.getElementById('driver_id').value,
                 passenger_name: document.getElementById('passenger_name').value,
                 payment_type: document.getElementById('payment_type').value,
@@ -1227,7 +1247,7 @@
             // Populate form fields
             document.getElementById('origin').value = order.origin;
             document.getElementById('destination').value = order.destination;
-            document.getElementById('price').value = Math.round(order.price);
+            document.getElementById('price').value = formatRupiahValue(order.price);
             document.getElementById('passenger_name').value = order.passenger_name || '';
             document.getElementById('payment_type').value = order.payment_type || 'cash';
 
@@ -1267,7 +1287,7 @@
 
         // Live Fee Preview
         function updateBreakdownPreview() {
-            const priceVal = parseFloat(document.getElementById('price').value) || 0;
+            const priceVal = parseFloat(document.getElementById('price').value.replace(/\./g, '')) || 0;
             const type = "{{ $settings['commission_type'] ?? 'percentage' }}";
             const val = parseFloat("{{ $settings['commission_value'] ?? '10' }}") || 0;
             const roundDown = "{{ $settings['round_hundreds_down'] ?? 'true' }}" === 'true';
