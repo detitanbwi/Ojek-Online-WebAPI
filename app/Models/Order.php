@@ -13,6 +13,7 @@ class Order extends Model
 
     protected $fillable = [
         'driver_id',
+        'customer_id',
         'origin',
         'destination',
         'price',
@@ -22,12 +23,14 @@ class Order extends Model
         'payment_type',
         'midtrans_order_id',
         'passenger_name',
+        'rating_driver',
     ];
 
     protected $casts = [
         'price' => 'float',
         'driver_fare' => 'float',
         'admin_fee' => 'float',
+        'rating_driver' => 'integer',
     ];
 
     /**
@@ -36,6 +39,14 @@ class Order extends Model
     public function driver(): BelongsTo
     {
         return $this->belongsTo(Driver::class);
+    }
+
+    /**
+     * Get the customer that owns the Order.
+     */
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'customer_id');
     }
 
     /**

@@ -32,4 +32,20 @@ class Driver extends Model
     {
         return $this->hasMany(Order::class);
     }
+
+    /**
+     * Get the wallet associated with the Driver.
+     */
+    public function wallet(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(DriverWallet::class);
+    }
+
+    /**
+     * Get all of the transactions for the Driver.
+     */
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }
