@@ -46,8 +46,8 @@
             <div>
                 <!-- Brand Logo & Header -->
                 <div class="h-16 flex items-center px-6 border-b border-slate-200/60 dark:border-slate-800 gap-3">
-                    <x-application-logo type="dynamic" class="h-9 w-auto" />
-                    <span class="font-extrabold text-lg tracking-wider bg-gradient-to-r from-emerald-500 to-teal-400 bg-clip-text text-transparent">WIROJEK</span>
+                    <x-application-logo type="transparent" class="h-9 w-auto" />
+                    <span class="font-black text-lg tracking-wider text-slate-900 dark:text-white">Wirojek</span>
                 </div>
 
                 <!-- Navigation Menu -->
