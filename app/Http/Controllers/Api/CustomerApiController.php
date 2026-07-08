@@ -8,6 +8,8 @@ use App\Models\OrderLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class CustomerApiController extends Controller
 {
@@ -197,6 +199,72 @@ class CustomerApiController extends Controller
             'success' => true,
             'message' => 'Rating berhasil dikirimkan.',
             'data' => $order
+        ], 200);
+    }
+
+    /**
+     * Register a new Customer.
+     */
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registrasi customer berhasil.',
+            'data' => $user
+        ], 201);
+    }
+
+    /**
+     * Authenticate Customer.
+     */
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email atau Password salah.'
+            ], 401);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Login customer berhasil.',
+            'data' => $user
         ], 200);
     }
 }

@@ -29,3 +29,5 @@ Route::post('/admin/driver/detach', [AdminOrderApiController::class, 'detachDriv
 Route::post('/customer/create-order', [CustomerApiController::class, 'createOrder']);
 Route::post('/customer/estimate-fares', [CustomerApiController::class, 'estimateFares']);
 Route::post('/orders/{id}/rate', [CustomerApiController::class, 'rateOrder']);
+Route::post('/customer/register', [CustomerApiController::class, 'register']);
+Route::post('/customer/login', [CustomerApiController::class, 'login']);
