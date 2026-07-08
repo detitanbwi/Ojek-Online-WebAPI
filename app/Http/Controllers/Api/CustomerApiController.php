@@ -267,4 +267,56 @@ class CustomerApiController extends Controller
             'data' => $user
         ], 200);
     }
+
+    /**
+     * Cancel an active order from customer side.
+     */
+    public function cancelOrder($id)
+    {
+        $order = Order::find($id);
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order tidak ditemukan.'
+            ], 404);
+        }
+
+        if (in_array($order->status, ['pending', 'accepted'])) {
+            $order->update(['status' => 'cancelled']);
+            
+            OrderLog::create([
+                'order_id' => $order->id,
+                'status' => 'cancelled',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order berhasil dibatalkan.'
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Order tidak dapat dibatalkan karena status: ' . $order->status
+        ], 400);
+    }
+
+    /**
+     * Check details and status of an order.
+     */
+    public function getOrderStatus($id)
+    {
+        $order = Order::with('driver')->find($id);
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order tidak ditemukan.'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $order
+        ], 200);
+    }
 }

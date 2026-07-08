@@ -31,3 +31,5 @@ Route::post('/customer/estimate-fares', [CustomerApiController::class, 'estimate
 Route::post('/orders/{id}/rate', [CustomerApiController::class, 'rateOrder']);
 Route::post('/customer/register', [CustomerApiController::class, 'register']);
 Route::post('/customer/login', [CustomerApiController::class, 'login']);
+Route::post('/customer/orders/{id}/cancel', [CustomerApiController::class, 'cancelOrder']);
+Route::get('/customer/orders/{id}/status', [CustomerApiController::class, 'getOrderStatus']);
