@@ -49,7 +49,7 @@ class DriverApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Driver logged in successfully and status set to online.',
-            'data' => $driver
+            'data' => $this->getDriverDataWithStats($driver)
         ], 200);
     }
 
@@ -80,7 +80,7 @@ class DriverApiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Driver status set to online.',
-                'data' => $driver
+                'data' => $this->getDriverDataWithStats($driver)
             ], 200);
         }
 
@@ -389,7 +389,7 @@ class DriverApiController extends Controller
             return response()->json(['success' => false, 'message' => 'Driver not found.'], 404);
         }
 
-        return response()->json(['success' => true, 'data' => $driver], 200);
+        return response()->json(['success' => true, 'data' => $this->getDriverDataWithStats($driver)], 200);
     }
 
     /**
@@ -452,5 +452,47 @@ class DriverApiController extends Controller
                 'wallet_balance' => $wallet->balance,
             ]
         ], 200);
+    }
+
+    private function getDriverDataWithStats($driver)
+    {
+        $driverData = $driver->toArray();
+        
+        $orders = Order::where('driver_id', $driver->id)->get();
+        $totalOrdersCount = $orders->whereIn('status', ['accepted', 'completed', 'rejected'])->count();
+        $acceptedOrdersCount = $orders->whereIn('status', ['accepted', 'completed'])->count();
+        $rejectedOrdersCount = $orders->where('status', 'rejected')->count();
+        
+        $acceptanceRate = $totalOrdersCount > 0 
+            ? round(($acceptedOrdersCount / $totalOrdersCount) * 100)
+            : 100;
+            
+        $rating = max(3.5, 5.0 - ($rejectedOrdersCount * 0.1));
+        
+        $totalSeconds = 0;
+        $completedOrders = $orders->where('status', 'completed');
+        foreach ($completedOrders as $order) {
+            $logs = OrderLog::where('order_id', $order->id)->whereIn('status', ['accepted', 'completed'])->get();
+            $acceptedLog = $logs->where('status', 'accepted')->first();
+            $completedLog = $logs->where('status', 'completed')->first();
+            
+            if ($acceptedLog && $completedLog) {
+                $acceptedTime = \Carbon\Carbon::parse($acceptedLog->created_at)->getTimestamp();
+                $completedTime = \Carbon\Carbon::parse($completedLog->created_at)->getTimestamp();
+                $diff = $completedTime - $acceptedTime;
+                if ($diff > 0) {
+                    $totalSeconds += $diff;
+                }
+            } else {
+                $totalSeconds += 300; // default fallback 5 mins
+            }
+        }
+        $drivingHours = round($totalSeconds / 3600.0, 1);
+        
+        $driverData['rating'] = $rating;
+        $driverData['acceptance_rate'] = $acceptanceRate;
+        $driverData['driving_hours'] = $drivingHours;
+        
+        return $driverData;
     }
 }
