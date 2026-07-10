@@ -492,9 +492,18 @@ class DriverApiController extends Controller
         
         $acceptanceRate = $totalOrdersCount > 0 
             ? round(($acceptedOrdersCount / $totalOrdersCount) * 100)
-            : 100;
+            : 0;
             
-        $rating = max(3.5, 5.0 - ($rejectedOrdersCount * 0.1));
+        $ratedOrders = Order::where('driver_id', $driver->id)
+            ->where('status', 'completed')
+            ->whereNotNull('rating_driver')
+            ->get();
+
+        if ($ratedOrders->count() > 0) {
+            $rating = round($ratedOrders->avg('rating_driver'), 1);
+        } else {
+            $rating = 0.0;
+        }
         
         $totalSeconds = 0;
         $completedOrders = $orders->where('status', 'completed');

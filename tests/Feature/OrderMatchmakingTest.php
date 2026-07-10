@@ -96,4 +96,92 @@ class OrderMatchmakingTest extends TestCase
         $this->assertContains($driver1->id, $finalOrder->rejected_driver_ids);
         $this->assertContains($driver2->id, $finalOrder->rejected_driver_ids);
     }
+
+    public function test_customer_unrated_order_endpoint_and_rating_averaging()
+    {
+        // 1. Create a customer
+        $customer = User::create([
+            'name' => 'Dewi Test',
+            'email' => 'dewi.test@example.com',
+            'password' => bcrypt('password123'),
+            'balance' => 0.00,
+        ]);
+
+        // 2. Create a driver
+        $driver = Driver::create([
+            'name' => 'Wiro Test Rating',
+            'phone' => '081234567899',
+            'email' => 'wiro.rating@example.com',
+            'password' => bcrypt('password123'),
+            'status_online' => true,
+            'vehicle_type' => 'wiro_ride',
+            'balance' => 0.00,
+        ]);
+        DriverWallet::create(['driver_id' => $driver->id, 'balance' => 0.00]);
+
+        // 3. Create Order 1 (completed, unrated)
+        $order1 = Order::create([
+            'customer_id' => $customer->id,
+            'driver_id' => $driver->id,
+            'origin' => 'Start 1',
+            'destination' => 'End 1',
+            'price' => 10000,
+            'driver_fare' => 9000,
+            'admin_fee' => 1000,
+            'status' => 'completed',
+            'service_type' => 'wiro_ride',
+            'payment_type' => 'cash',
+        ]);
+
+        // 4. Create Order 2 (completed, unrated)
+        $order2 = Order::create([
+            'customer_id' => $customer->id,
+            'driver_id' => $driver->id,
+            'origin' => 'Start 2',
+            'destination' => 'End 2',
+            'price' => 12000,
+            'driver_fare' => 10800,
+            'admin_fee' => 1200,
+            'status' => 'completed',
+            'service_type' => 'wiro_ride',
+            'payment_type' => 'cash',
+        ]);
+
+        // Call unrated orders API. Should return the most recent one (Order 2)
+        $response = $this->getJson('/api/customer/orders/unrated?email=' . $customer->email);
+        $response->assertStatus(200);
+        $this->assertEquals($order2->id, $response->json('data.id'));
+
+        // Verify driver profile rating calculation (should NOT count unrated null as 0, but fallback to 5.0 since no rating exists yet)
+        $driverProfileResponse = $this->getJson('/api/driver/profile?email=' . $driver->email);
+        $driverProfileResponse->assertStatus(200);
+        $this->assertEquals(5.0, $driverProfileResponse->json('data.rating'));
+
+        // Rate Order 2 as 4 stars
+        $rateResponse = $this->postJson("/api/orders/{$order2->id}/rate", [
+            'rating_driver' => 4,
+        ]);
+        $rateResponse->assertStatus(200);
+
+        // Fetch unrated orders API again. Should now return Order 1 (since Order 2 is rated)
+        $response2 = $this->getJson('/api/customer/orders/unrated?email=' . $customer->email);
+        $response2->assertStatus(200);
+        $this->assertEquals($order1->id, $response2->json('data.id'));
+
+        // Rate Order 1 as 5 stars
+        $rateResponse2 = $this->postJson("/api/orders/{$order1->id}/rate", [
+            'rating_driver' => 5,
+        ]);
+        $rateResponse2->assertStatus(200);
+
+        // Fetch unrated orders API again. Should return null since all are rated
+        $response3 = $this->getJson('/api/customer/orders/unrated?email=' . $customer->email);
+        $response3->assertStatus(200);
+        $this->assertNull($response3->json('data'));
+
+        // Verify driver profile rating calculation (should be average of 4 and 5 which is 4.5)
+        $driverProfileResponse2 = $this->getJson('/api/driver/profile?email=' . $driver->email);
+        $driverProfileResponse2->assertStatus(200);
+        $this->assertEquals(4.5, $driverProfileResponse2->json('data.rating'));
+    }
 }

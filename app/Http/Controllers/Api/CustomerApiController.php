@@ -349,4 +349,43 @@ class CustomerApiController extends Controller
             'data' => $user
         ], 200);
     }
+
+    /**
+     * Get the most recent unrated completed order for customer.
+     */
+    public function getUnratedOrder(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email parameter wajib diisi.',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Customer tidak ditemukan.'
+            ], 404);
+        }
+
+        $order = Order::with('driver')
+            ->where('customer_id', $user->id)
+            ->where('status', 'completed')
+            ->whereNull('rating_driver')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'data' => $order
+        ], 200);
+    }
 }
