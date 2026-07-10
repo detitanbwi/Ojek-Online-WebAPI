@@ -14,6 +14,48 @@ class Order extends Model
 
     public static $adminCommissionRate = 0.10; // Keterangan: Potongan komisi platform sebesar 10% dari total tarif per orderan sukses
 
+    public static function matchDriver($order)
+    {
+        $rejectedIds = $order->rejected_driver_ids ?? [];
+
+        $driver = \App\Models\Driver::where('status_online', true)
+            ->where('vehicle_type', $order->service_type)
+            ->whereNotIn('id', $rejectedIds)
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('orders')
+                    ->whereColumn('orders.driver_id', 'drivers.id')
+                    ->whereIn('orders.status', ['pending', 'accepted']);
+            })
+            ->first();
+
+        if ($driver) {
+            $order->update([
+                'driver_id' => $driver->id,
+                'status' => 'pending',
+            ]);
+
+            \App\Models\OrderLog::create([
+                'order_id' => $order->id,
+                'status' => 'pending',
+            ]);
+
+            return $driver;
+        }
+
+        $order->update([
+            'driver_id' => null,
+            'status' => 'rejected',
+        ]);
+
+        \App\Models\OrderLog::create([
+            'order_id' => $order->id,
+            'status' => 'rejected',
+        ]);
+
+        return null;
+    }
+
     protected static function booted()
     {
         static::updated(function ($order) {
@@ -63,6 +105,7 @@ class Order extends Model
 
     protected $fillable = [
         'driver_id',
+        'rejected_driver_ids',
         'customer_id',
         'origin',
         'destination',
@@ -82,6 +125,7 @@ class Order extends Model
         'driver_fare' => 'float',
         'admin_fee' => 'float',
         'rating_driver' => 'integer',
+        'rejected_driver_ids' => 'array',
     ];
 
     /**

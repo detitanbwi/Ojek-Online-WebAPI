@@ -68,13 +68,11 @@ class CustomerApiController extends Controller
                     'service_type' => $serviceType,
                     'passenger_name' => $passengerName,
                     'payment_type' => $request->payment_type,
+                    'rejected_driver_ids' => [],
                 ]);
 
-                // Log the pending status
-                OrderLog::create([
-                    'order_id' => $order->id,
-                    'status' => 'pending',
-                ]);
+                // Run matchmaking engine to assign first driver
+                Order::matchDriver($order);
 
                 return $order;
             });

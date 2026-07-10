@@ -111,6 +111,35 @@ class DriverApiController extends Controller
         $order = Order::find($request->order_id);
         $oldStatus = $order->status;
         
+        if ($request->status === 'rejected') {
+            $rejectedDriverIds = $order->rejected_driver_ids ?? [];
+            if ($order->driver_id && !in_array($order->driver_id, $rejectedDriverIds)) {
+                $rejectedDriverIds[] = $order->driver_id;
+            }
+
+            $order->update([
+                'rejected_driver_ids' => $rejectedDriverIds,
+                'driver_id' => null,
+                'status' => 'pending', // Revert to pending temporarily for next match
+            ]);
+
+            OrderLog::create([
+                'order_id' => $order->id,
+                'status' => 'rejected',
+            ]);
+
+            // Attempt to match the next eligible driver
+            $nextDriver = Order::matchDriver($order);
+
+            return response()->json([
+                'success' => true,
+                'message' => $nextDriver 
+                    ? 'Order rejected by driver. Offered to next driver: ' . $nextDriver->name 
+                    : 'Order rejected by driver. No other drivers available.',
+                'data' => $order->load('driver')
+            ], 200);
+        }
+
         $updateData = ['status' => $request->status];
         if ($request->has('payment_type')) {
             $updateData['payment_type'] = $request->payment_type;
@@ -122,8 +151,6 @@ class DriverApiController extends Controller
             'order_id' => $order->id,
             'status' => $request->status,
         ]);
-
-
 
         return response()->json([
             'success' => true,
