@@ -33,3 +33,4 @@ Route::post('/customer/register', [CustomerApiController::class, 'register']);
 Route::post('/customer/login', [CustomerApiController::class, 'login']);
 Route::post('/customer/orders/{id}/cancel', [CustomerApiController::class, 'cancelOrder']);
 Route::get('/customer/orders/{id}/status', [CustomerApiController::class, 'getOrderStatus']);
+Route::get('/customer/profile', [CustomerApiController::class, 'getProfile']);
