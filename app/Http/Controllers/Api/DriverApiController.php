@@ -418,7 +418,7 @@ class DriverApiController extends Controller
         $driver = Driver::find($request->driver_id);
         $wallet = \App\Models\DriverWallet::firstOrCreate(
             ['driver_id' => $driver->id],
-            ['balance' => 0]
+            ['balance' => $driver->balance]
         );
 
         if ($wallet->balance < $amount) {

@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Angga',
                 'password' => Hash::make('password123'),
-                'balance' => 150000.00,
+                'balance' => 0.00,
             ]
         );
 
@@ -40,12 +40,12 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Dewi Puspita',
                 'password' => Hash::make('password123'),
-                'balance' => 75000.00,
+                'balance' => 0.00,
             ]
         );
 
         // Seed Driver User (Wiro Sableng)
-        Driver::updateOrCreate(
+        $wiro = Driver::updateOrCreate(
             ['phone' => '081234567890'],
             [
                 'name' => 'Wiro Sableng',
@@ -53,12 +53,16 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password123'),
                 'status_online' => false,
                 'vehicle_type' => 'wiro_ride',
-                'balance' => 100000.00,
+                'balance' => 0.00,
             ]
+        );
+        \App\Models\DriverWallet::updateOrCreate(
+            ['driver_id' => $wiro->id],
+            ['balance' => 0.00]
         );
 
         // Seed Driver User 2 (Bento)
-        Driver::updateOrCreate(
+        $bento = Driver::updateOrCreate(
             ['phone' => '081234567891'],
             [
                 'name' => 'Bento',
@@ -66,8 +70,12 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password123'),
                 'status_online' => false,
                 'vehicle_type' => 'wiro_car',
-                'balance' => 50000.00,
+                'balance' => 0.00,
             ]
+        );
+        \App\Models\DriverWallet::updateOrCreate(
+            ['driver_id' => $bento->id],
+            ['balance' => 0.00]
         );
     }
 }
